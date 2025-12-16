@@ -1,6 +1,6 @@
 {
   "name": "create-mendix-widget",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "🧙 The fastest way to create Mendix pluggable widgets. Zero to deployed in 60 seconds.",
   "keywords": [
     "mendix",
