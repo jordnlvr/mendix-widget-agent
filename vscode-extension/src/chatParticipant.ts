@@ -804,9 +804,13 @@ Be intelligent:
     // Configuration
     const config = vscode.workspace.getConfiguration('mendixWidget');
     stream.markdown(`## Configuration\n`);
-    stream.markdown(`- Default Mendix Project: \`${config.get('defaultMendixProject') || 'Not set'}\`\n`);
+    stream.markdown(
+      `- Default Mendix Project: \`${config.get('defaultMendixProject') || 'Not set'}\`\n`
+    );
     stream.markdown(`- Default Work Folder: \`${config.get('defaultWorkFolder') || 'Not set'}\`\n`);
-    stream.markdown(`- Beast Mode: ${config.get('beastModeEnabled', true) ? '✅ Enabled' : '❌ Disabled'}\n`);
+    stream.markdown(
+      `- Beast Mode: ${config.get('beastModeEnabled', true) ? '✅ Enabled' : '❌ Disabled'}\n`
+    );
 
     return {};
   }

@@ -40,10 +40,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VERSION = exports.SelfUpdate = void 0;
-const vscode = __importStar(require("vscode"));
-const https = __importStar(require("https"));
 const fs = __importStar(require("fs"));
+const https = __importStar(require("https"));
 const path = __importStar(require("path"));
+const vscode = __importStar(require("vscode"));
 const GITHUB_REPO = 'jordnlvr/mendix-widget-generator';
 const CURRENT_VERSION = '1.1.0'; // Increment this with each release
 class SelfUpdate {
@@ -59,7 +59,8 @@ class SelfUpdate {
                 currentVersion: CURRENT_VERSION,
                 latestVersion,
                 updateAvailable,
-                downloadUrl: releaseInfo.assets?.find((a) => a.name.endsWith('.vsix'))?.browser_download_url,
+                downloadUrl: releaseInfo.assets?.find((a) => a.name.endsWith('.vsix'))
+                    ?.browser_download_url,
                 releaseNotes: releaseInfo.body,
             };
         }
@@ -162,12 +163,13 @@ Then reload VS Code: \`Ctrl+Shift+P\` → "Reload Window"
                 path: `/repos/${GITHUB_REPO}/releases/latest`,
                 headers: {
                     'User-Agent': 'MendixWidgetAgent',
-                    'Accept': 'application/vnd.github.v3+json',
+                    Accept: 'application/vnd.github.v3+json',
                 },
             };
-            https.get(options, (res) => {
+            https
+                .get(options, (res) => {
                 let data = '';
-                res.on('data', (chunk) => data += chunk);
+                res.on('data', (chunk) => (data += chunk));
                 res.on('end', () => {
                     try {
                         resolve(JSON.parse(data));
@@ -177,7 +179,8 @@ Then reload VS Code: \`Ctrl+Shift+P\` → "Reload Window"
                         resolve({ tag_name: 'v1.0.0', body: 'Initial release' });
                     }
                 });
-            }).on('error', reject);
+            })
+                .on('error', reject);
         });
     }
     isNewerVersion(latest, current) {

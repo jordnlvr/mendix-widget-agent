@@ -3,15 +3,20 @@
  *
  * Exhaustive 6-tier research protocol for Mendix widget patterns.
  * This is the AI's research brain - never gives up, always finds answers.
+ * 
+ * NOW WITH LEARNING: Checks local knowledge base FIRST before external research.
+ * Research findings are saved back, so the system gets smarter over time.
  */
 
 import * as vscode from 'vscode';
+import { KnowledgeSharing, KnowledgeEntry } from './knowledgeSharing';
 
 export interface ResearchResult {
   summary: string;
   codeExamples: CodeExample[];
   sources: string[];
   confidence: 'high' | 'medium' | 'low';
+  fromCache?: boolean;  // True if this came from local knowledge
 }
 
 export interface CodeExample {
@@ -21,8 +26,13 @@ export interface CodeExample {
   description?: string;
 }
 
-// Research tier definitions
+// Research tier definitions - NOW WITH LOCAL KNOWLEDGE AS TIER 0!
 const RESEARCH_TIERS = [
+  {
+    tier: 0,
+    name: 'Local Knowledge Base (Learned Patterns)',
+    sources: ['Previously successful builds', 'Saved research findings', 'Working fixes'],
+  },
   {
     tier: 1,
     name: 'Official Documentation',
@@ -79,8 +89,15 @@ const RESEARCH_TIERS = [
 ];
 
 export class BeastModeResearch {
+  private knowledgeSharing: KnowledgeSharing;
+
+  constructor() {
+    this.knowledgeSharing = new KnowledgeSharing();
+  }
+
   /**
    * Perform exhaustive research on a topic
+   * NOW CHECKS LOCAL KNOWLEDGE FIRST before external research!
    */
   async research(
     topic: string,
@@ -93,7 +110,41 @@ export class BeastModeResearch {
     progressCallback?.(`## 🔬 Beast Mode Activated\n\n`);
     progressCallback?.(`**Topic:** ${topic}\n\n`);
 
-    // Use the language model to research
+    // TIER 0: Check local knowledge base FIRST
+    progressCallback?.(`### Tier 0: Checking Local Knowledge Base...\n\n`);
+    
+    const localKnowledge = this.knowledgeSharing.searchKnowledge(topic);
+    if (localKnowledge.length > 0) {
+      progressCallback?.(`✅ **Found ${localKnowledge.length} relevant entries in local knowledge!**\n\n`);
+      
+      // Check if we have a high-confidence match
+      const highConfidence = localKnowledge.find(k => k.confidence === 'high');
+      if (highConfidence) {
+        progressCallback?.(`🎯 **High-confidence match found:** ${highConfidence.title}\n\n`);
+        progressCallback?.(`Using cached knowledge (faster and proven to work).\n\n`);
+        
+        // Return the cached result
+        return {
+          summary: highConfidence.content,
+          codeExamples: this.extractCodeExamplesFromContent(highConfidence.content),
+          sources: [`Local Knowledge: ${highConfidence.title}`, highConfidence.source],
+          confidence: 'high',
+          fromCache: true,
+        };
+      }
+      
+      // Medium confidence - use as supplement
+      progressCallback?.(`📚 Found relevant patterns (will enhance external research):\n`);
+      for (const entry of localKnowledge.slice(0, 3)) {
+        progressCallback?.(`  - ${entry.title}\n`);
+        sources.push(`Local: ${entry.title}`);
+      }
+      progressCallback?.(`\n`);
+    } else {
+      progressCallback?.(`No cached knowledge found. Proceeding with external research...\n\n`);
+    }
+
+    // Continue with external research
     try {
       const [model] = await vscode.lm.selectChatModels({ family: 'gpt-4' });
 
@@ -101,12 +152,12 @@ export class BeastModeResearch {
         return this.getFallbackResearch(topic);
       }
 
-      // Build comprehensive research prompt
-      const researchPrompt = this.buildResearchPrompt(topic);
+      // Build comprehensive research prompt, including local knowledge context
+      const researchPrompt = this.buildResearchPrompt(topic, localKnowledge);
 
-      progressCallback?.(`### Searching all 6 tiers...\n\n`);
+      progressCallback?.(`### Searching external tiers...\n\n`);
 
-      for (const tier of RESEARCH_TIERS) {
+      for (const tier of RESEARCH_TIERS.filter(t => t.tier > 0)) {
         progressCallback?.(`**Tier ${tier.tier}: ${tier.name}**\n`);
         tier.sources.forEach((s) => progressCallback?.(`  - ${s}\n`));
         progressCallback?.(`\n`);
@@ -185,13 +236,47 @@ Be specific and provide exact code fixes. Use the Beast Mode research protocol -
   }
 
   /**
+   * Extract code examples from cached knowledge content
+   */
+  private extractCodeExamplesFromContent(content: string): CodeExample[] {
+    const examples: CodeExample[] = [];
+    
+    // Match code blocks with language
+    const codeBlockRegex = /```(\w+)\n([\s\S]*?)```/g;
+    let match;
+    
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      examples.push({
+        language: match[1],
+        code: match[2].trim(),
+        source: 'Local Knowledge Base',
+        description: 'Cached from previous research',
+      });
+    }
+    
+    return examples;
+  }
+
+  /**
    * Build comprehensive research prompt
    */
-  private buildResearchPrompt(topic: string): string {
+  private buildResearchPrompt(topic: string, localKnowledge?: KnowledgeEntry[]): string {
+    let localContext = '';
+    
+    if (localKnowledge && localKnowledge.length > 0) {
+      localContext = `\n## LOCAL KNOWLEDGE CONTEXT
+The following patterns were found in the local knowledge base. Use them as additional context:
+
+`;
+      for (const entry of localKnowledge.slice(0, 3)) {
+        localContext += `### ${entry.title}\n${entry.content.substring(0, 500)}...\n\n`;
+      }
+    }
+
     return `# 🔥 BEAST MODE RESEARCH: ${topic}
 
 You are researching Mendix Pluggable Widget development. Use the 6-tier exhaustive research protocol.
-
+${localContext}
 ## RESEARCH TIERS (Search ALL of them!)
 
 ### Tier 1: Official Documentation

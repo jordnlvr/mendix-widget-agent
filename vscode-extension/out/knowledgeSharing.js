@@ -41,9 +41,9 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KnowledgeSharing = void 0;
-const vscode = __importStar(require("vscode"));
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const vscode = __importStar(require("vscode"));
 class KnowledgeSharing {
     knowledgeBasePath;
     constructor() {
@@ -172,7 +172,7 @@ class KnowledgeSharing {
         }
         try {
             const files = fs.readdirSync(this.knowledgeBasePath);
-            const jsonFiles = files.filter(f => f.endsWith('.json'));
+            const jsonFiles = files.filter((f) => f.endsWith('.json'));
             return {
                 enabled: true,
                 path: this.knowledgeBasePath,
@@ -182,6 +182,195 @@ class KnowledgeSharing {
         catch {
             return { enabled: false };
         }
+    }
+    // ============================================================
+    // KNOWLEDGE RETRIEVAL - Use saved knowledge to improve behavior
+    // ============================================================
+    /**
+     * Search knowledge base for patterns matching a topic
+     * This is called BEFORE doing external research to use what we've already learned
+     */
+    searchKnowledge(topic) {
+        if (!this.knowledgeBasePath) {
+            return [];
+        }
+        const results = [];
+        const searchTerms = topic.toLowerCase().split(/\s+/);
+        try {
+            const files = fs.readdirSync(this.knowledgeBasePath);
+            for (const file of files) {
+                if (!file.endsWith('.json'))
+                    continue;
+                try {
+                    const filepath = path.join(this.knowledgeBasePath, file);
+                    const content = fs.readFileSync(filepath, 'utf-8');
+                    const entry = JSON.parse(content);
+                    // Score how well this entry matches the search
+                    const score = this.scoreMatch(entry, searchTerms);
+                    if (score > 0) {
+                        entry._score = score;
+                        results.push(entry);
+                    }
+                }
+                catch {
+                    // Skip malformed files
+                }
+            }
+            // Sort by score descending
+            results.sort((a, b) => (b._score || 0) - (a._score || 0));
+            // Return top 5 matches
+            return results.slice(0, 5);
+        }
+        catch {
+            return [];
+        }
+    }
+    /**
+     * Get known fixes for an error pattern
+     * Returns fixes that worked in the past for similar errors
+     */
+    getKnownFixes(errorText) {
+        if (!this.knowledgeBasePath) {
+            return [];
+        }
+        const fixes = [];
+        const errorLower = errorText.toLowerCase();
+        try {
+            const files = fs.readdirSync(this.knowledgeBasePath);
+            for (const file of files) {
+                if (!file.startsWith('fix-') || !file.endsWith('.json'))
+                    continue;
+                try {
+                    const filepath = path.join(this.knowledgeBasePath, file);
+                    const content = fs.readFileSync(filepath, 'utf-8');
+                    const entry = JSON.parse(content);
+                    // Parse the fix content
+                    const fixData = JSON.parse(entry.content);
+                    if (fixData.errorPattern && fixData.fix) {
+                        // Score similarity
+                        const patternLower = fixData.errorPattern.toLowerCase();
+                        let score = 0;
+                        // Check for common error keywords
+                        const errorKeywords = patternLower.split(/\s+/);
+                        for (const keyword of errorKeywords) {
+                            if (keyword.length > 3 && errorLower.includes(keyword)) {
+                                score += 1;
+                            }
+                        }
+                        if (score > 0) {
+                            fixes.push({
+                                errorPattern: fixData.errorPattern,
+                                fix: fixData.fix,
+                                score
+                            });
+                        }
+                    }
+                }
+                catch {
+                    // Skip malformed files
+                }
+            }
+            // Sort by score and return
+            fixes.sort((a, b) => b.score - a.score);
+            return fixes.slice(0, 3).map(f => ({ errorPattern: f.errorPattern, fix: f.fix }));
+        }
+        catch {
+            return [];
+        }
+    }
+    /**
+     * Get successful build patterns similar to what we're trying to build
+     */
+    getSimilarSuccessfulBuilds(widgetType) {
+        if (!this.knowledgeBasePath) {
+            return [];
+        }
+        const results = [];
+        const searchTerms = widgetType.toLowerCase().split(/\s+/);
+        try {
+            const files = fs.readdirSync(this.knowledgeBasePath);
+            for (const file of files) {
+                if (!file.startsWith('successful-build-') || !file.endsWith('.json'))
+                    continue;
+                try {
+                    const filepath = path.join(this.knowledgeBasePath, file);
+                    const content = fs.readFileSync(filepath, 'utf-8');
+                    const entry = JSON.parse(content);
+                    // Check tag matches
+                    const tagMatches = entry.tags.filter(tag => searchTerms.some(term => tag.toLowerCase().includes(term))).length;
+                    if (tagMatches > 0) {
+                        entry._score = tagMatches;
+                        results.push(entry);
+                    }
+                }
+                catch {
+                    // Skip malformed files
+                }
+            }
+            results.sort((a, b) => (b._score || 0) - (a._score || 0));
+            return results.slice(0, 3);
+        }
+        catch {
+            return [];
+        }
+    }
+    /**
+     * Get all high-confidence knowledge for a category
+     */
+    getHighConfidenceKnowledge(category) {
+        if (!this.knowledgeBasePath) {
+            return [];
+        }
+        const results = [];
+        try {
+            const files = fs.readdirSync(this.knowledgeBasePath);
+            for (const file of files) {
+                if (!file.endsWith('.json'))
+                    continue;
+                try {
+                    const filepath = path.join(this.knowledgeBasePath, file);
+                    const content = fs.readFileSync(filepath, 'utf-8');
+                    const entry = JSON.parse(content);
+                    if (entry.category === category && entry.confidence === 'high') {
+                        results.push(entry);
+                    }
+                }
+                catch {
+                    // Skip malformed files
+                }
+            }
+            return results;
+        }
+        catch {
+            return [];
+        }
+    }
+    /**
+     * Score how well an entry matches search terms
+     */
+    scoreMatch(entry, searchTerms) {
+        let score = 0;
+        const titleLower = entry.title.toLowerCase();
+        const contentLower = entry.content.toLowerCase();
+        for (const term of searchTerms) {
+            if (term.length < 3)
+                continue;
+            // Title matches are worth more
+            if (titleLower.includes(term))
+                score += 3;
+            // Tag matches are valuable
+            if (entry.tags.some(tag => tag.includes(term)))
+                score += 2;
+            // Content matches
+            if (contentLower.includes(term))
+                score += 1;
+        }
+        // Boost high confidence entries
+        if (entry.confidence === 'high')
+            score *= 1.5;
+        else if (entry.confidence === 'medium')
+            score *= 1.2;
+        return score;
     }
     formatForKnowledge(result) {
         let content = `## Summary\n${result.summary}\n\n`;
@@ -205,8 +394,22 @@ class KnowledgeSharing {
         const tags = [];
         // Extract from topic
         const topicWords = topic.toLowerCase().split(/\s+/);
-        const keywords = ['chart', 'table', 'input', 'button', 'card', 'modal', 'form',
-            'list', 'grid', 'tree', 'dropdown', 'date', 'file', 'image'];
+        const keywords = [
+            'chart',
+            'table',
+            'input',
+            'button',
+            'card',
+            'modal',
+            'form',
+            'list',
+            'grid',
+            'tree',
+            'dropdown',
+            'date',
+            'file',
+            'image',
+        ];
         for (const word of topicWords) {
             if (keywords.includes(word)) {
                 tags.push(word);

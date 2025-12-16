@@ -4,6 +4,8 @@
  * Implements the Research → Build → Test → Fix loop.
  * When a build fails, this doesn't give up - it researches the error,
  * applies fixes, and tries again.
+ * 
+ * NOW WITH LEARNING: Checks local knowledge for known fixes FIRST!
  */
 
 import * as fs from 'fs';
@@ -11,6 +13,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { BeastModeResearch } from './beastModeResearch';
 import { GenerationResult, WidgetConfig, WidgetGeneratorBridge } from './generatorBridge';
+import { KnowledgeSharing } from './knowledgeSharing';
 
 export interface BuildLoopResult extends GenerationResult {
   attempts: number;
@@ -27,14 +30,17 @@ export interface BuildLoopOptions {
 export class BuildLoop {
   private generator: WidgetGeneratorBridge;
   private research: BeastModeResearch;
+  private knowledgeSharing: KnowledgeSharing;
 
   constructor(generator: WidgetGeneratorBridge, research: BeastModeResearch) {
     this.generator = generator;
     this.research = research;
+    this.knowledgeSharing = new KnowledgeSharing();
   }
 
   /**
    * Execute the full build loop with automatic error fixing
+   * NOW CHECKS LOCAL KNOWLEDGE FOR KNOWN FIXES FIRST!
    */
   async execute(
     config: WidgetConfig,
@@ -147,6 +153,7 @@ export class BuildLoop {
 
   /**
    * Analyze errors and apply automatic fixes
+   * NOW WITH LEARNING: Checks known fixes FIRST before pattern matching or AI research!
    */
   private async analyzeAndFix(
     errors: string[],
@@ -156,13 +163,40 @@ export class BuildLoop {
   ): Promise<{ applied: boolean; description: string }> {
     const errorText = errors.join('\n');
 
-    // Pattern-based fixes (fast, no AI required)
+    // 1. FIRST: Check local knowledge for known fixes (LEARNED PATTERNS!)
+    progressCallback(`🧠 Checking learned fixes from knowledge base...\n`);
+    const knownFixes = this.knowledgeSharing.getKnownFixes(errorText);
+    
+    if (knownFixes.length > 0) {
+      progressCallback(`💡 Found ${knownFixes.length} known fix(es) in knowledge base!\n`);
+      
+      // Try known fixes in order
+      for (const knownFix of knownFixes) {
+        progressCallback(`  Trying fix for pattern: "${knownFix.errorPattern.substring(0, 50)}..."\n`);
+        
+        const applied = await this.applyKnownFix(knownFix.fix, widgetPath, progressCallback);
+        if (applied) {
+          progressCallback(`✅ Applied known fix from learned patterns!\n`);
+          return { 
+            applied: true, 
+            description: `[LEARNED] ${knownFix.fix.substring(0, 100)}` 
+          };
+        }
+      }
+      progressCallback(`⚠️ Known fixes didn't match this case, trying other methods...\n`);
+    } else {
+      progressCallback(`📭 No known fixes found, proceeding with pattern matching...\n`);
+    }
+
+    // 2. Pattern-based fixes (fast, no AI required)
     const patternFix = await this.tryPatternFix(errorText, widgetPath);
     if (patternFix.applied) {
+      // Save this fix to knowledge base for future use!
+      this.knowledgeSharing.saveWorkingFix(errorText, patternFix.description, 'success');
       return patternFix;
     }
 
-    // AI-powered fix research
+    // 3. AI-powered fix research (last resort)
     try {
       const [model] = await vscode.lm.selectChatModels({ family: 'gpt-4' });
 
@@ -375,6 +409,67 @@ Be specific. Provide exact text to search for and replace.`;
       };
     } catch (error) {
       return { applied: false, description: `Failed to apply fix: ${error}` };
+    }
+  }
+
+  /**
+   * Apply a known fix from the knowledge base
+   * These are fixes that worked before and were saved for reuse
+   */
+  private async applyKnownFix(
+    fixInstructions: string,
+    widgetPath: string,
+    progressCallback: (update: string) => void
+  ): Promise<boolean> {
+    try {
+      // Parse the fix instructions - they may be JSON or text
+      let fixData: any;
+      
+      try {
+        fixData = JSON.parse(fixInstructions);
+      } catch {
+        // Not JSON, treat as plain text instructions
+        // For now, we can only auto-apply JSON-formatted fixes
+        progressCallback(`  ℹ️ Fix is text-based, requires manual application\n`);
+        return false;
+      }
+
+      // If it has a "fixes" array, use the same format as AI fixes
+      if (fixData.fixes && Array.isArray(fixData.fixes)) {
+        let applied = 0;
+        
+        for (const f of fixData.fixes) {
+          const filePath = path.join(widgetPath, f.file);
+          
+          if (!fs.existsSync(filePath)) {
+            continue;
+          }
+
+          let content = fs.readFileSync(filePath, 'utf8');
+
+          if (f.action === 'replace' && f.search && f.replace !== undefined) {
+            if (content.includes(f.search)) {
+              content = content.replace(f.search, f.replace);
+              fs.writeFileSync(filePath, content);
+              applied++;
+            }
+          }
+        }
+        
+        return applied > 0;
+      }
+
+      // Simple error-pattern → fix format
+      if (fixData.errorPattern && fixData.fix) {
+        // This is metadata only, not executable
+        // The fix field describes what was done, not how to do it
+        return false;
+      }
+
+      return false;
+    } catch (error) {
+      progressCallback(`  ⚠️ Error applying known fix: ${error}\n`);
+      return false;
     }
   }
 
