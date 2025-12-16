@@ -53,10 +53,17 @@ export class BuildLoop {
    * 2. Knowledge Base (broader learned knowledge)
    * 3. Pattern Matching (hardcoded patterns)
    * 4. AI Research (external knowledge)
+   *
+   * @param config - Widget configuration
+   * @param options - Build loop options
+   * @param model - The language model to use (from request.model)
+   * @param progressCallback - Progress callback
+   * @param token - Cancellation token
    */
   async execute(
     config: WidgetConfig,
     options: BuildLoopOptions,
+    model: vscode.LanguageModelChat,
     progressCallback: (update: string) => void,
     token: vscode.CancellationToken
   ): Promise<BuildLoopResult> {
@@ -126,11 +133,12 @@ export class BuildLoop {
       if (attempt < maxAttempts) {
         progressCallback(`🔧 **Analyzing errors and applying fixes...**\n\n`);
 
-        // Research the fix
+        // Research the fix (pass model through)
         const fix = await this.analyzeAndFix(
           result.errors,
           config,
           result.outputPath || path.join(workFolder, config.name.toLowerCase()),
+          model,
           progressCallback
         );
 
@@ -157,10 +165,12 @@ export class BuildLoop {
 
   /**
    * Research fixes for given errors
+   * @param errors - Array of error messages
+   * @param model - The language model to use (from request.model)
    */
-  async researchFixes(errors: string[]): Promise<string> {
+  async researchFixes(errors: string[], model: vscode.LanguageModelChat): Promise<string> {
     const errorText = errors.join('\n');
-    return await this.research.analyzeError(errorText);
+    return await this.research.analyzeError(errorText, model);
   }
 
   /**
@@ -173,11 +183,14 @@ export class BuildLoop {
    * 3. AI Research (external knowledge)
    *
    * Successful fixes get LEARNED back into the nucleus!
+   *
+   * @param model - The language model to use (from request.model)
    */
   private async analyzeAndFix(
     errors: string[],
     config: WidgetConfig,
     widgetPath: string,
+    model: vscode.LanguageModelChat,
     progressCallback: (update: string) => void
   ): Promise<{ applied: boolean; description: string }> {
     const errorText = errors.join('\n');
@@ -264,16 +277,8 @@ export class BuildLoop {
       return patternFix;
     }
 
-    // 3. AI-powered fix research (last resort)
+    // 3. AI-powered fix research (using the model from chat session)
     try {
-      // Use any available model (works with GPT-4, Claude, etc.)
-      const models = await vscode.lm.selectChatModels({});
-      const model = models[0];
-
-      if (!model) {
-        return { applied: false, description: 'No AI model available for analysis' };
-      }
-
       const prompt = this.buildFixPrompt(errorText, config, widgetPath);
       const messages = [vscode.LanguageModelChatMessage.User(prompt)];
       const response = await model.sendRequest(

@@ -160,13 +160,8 @@ export class MendixWidgetChatParticipant {
     const analysisPrompt = this.buildAnalysisPrompt(userPrompt);
 
     try {
-      // Get AI analysis - use any available model (works with GPT-4, Claude, etc.)
-      const models = await vscode.lm.selectChatModels({});
-      const model = models[0];
-      if (!model) {
-        stream.markdown(`⚠️ No AI model available. Using template-based generation.\n\n`);
-        return await this.fallbackToTemplateSelection(stream);
-      }
+      // Use the SAME model the user is chatting with - no selection needed!
+      const model = request.model;
 
       const messages = [vscode.LanguageModelChatMessage.User(analysisPrompt)];
       const response = await model.sendRequest(messages, {}, token);
@@ -257,7 +252,7 @@ export class MendixWidgetChatParticipant {
 
     // Check for confirmations
     if (state.stage === 'gathering' && this.isConfirmation(userPrompt)) {
-      return await this.proceedWithBuild(stream, token, state, sessionId);
+      return await this.proceedWithBuild(request, stream, token, state, sessionId);
     }
 
     // Check for path-like inputs when we're gathering
@@ -391,7 +386,7 @@ export class MendixWidgetChatParticipant {
         stream.markdown(`---\n\n`);
         stream.markdown(`## Analyzing Provided Errors...\n\n`);
 
-        const analysis = await this.beastMode.analyzeError(request.prompt);
+        const analysis = await this.beastMode.analyzeError(request.prompt, request.model);
         stream.markdown(analysis);
       }
       return {};
@@ -405,7 +400,7 @@ export class MendixWidgetChatParticipant {
 
     stream.markdown(`## 🔍 Researching Solutions...\n\n`);
 
-    const fixes = await this.buildLoop.researchFixes(state.buildErrors);
+    const fixes = await this.buildLoop.researchFixes(state.buildErrors, request.model);
     stream.markdown(fixes);
 
     return {};
@@ -437,7 +432,7 @@ export class MendixWidgetChatParticipant {
     stream.markdown(`# 🔬 Beast Mode: "${topic}"\n\n`);
     stream.markdown(`*Initiating 6-tier exhaustive research...*\n\n`);
 
-    const research = await this.beastMode.research(topic, (update) => {
+    const research = await this.beastMode.research(topic, request.model, (update) => {
       stream.markdown(update);
     });
 
@@ -457,6 +452,7 @@ export class MendixWidgetChatParticipant {
   }
 
   private async proceedWithBuild(
+    request: vscode.ChatRequest,
     stream: vscode.ChatResponseStream,
     token: vscode.CancellationToken,
     state: ConversationState,
@@ -472,7 +468,7 @@ export class MendixWidgetChatParticipant {
 
     stream.markdown(`# 🏗️ Building Widget: ${state.widgetConfig.name}\n\n`);
 
-    // Execute the build with the build loop
+    // Execute the build with the build loop (passing the chat model)
     const result = await this.buildLoop.execute(
       state.widgetConfig as WidgetConfig,
       {
@@ -480,6 +476,7 @@ export class MendixWidgetChatParticipant {
         mendixProject: state.mendixProject,
         autoDeploy: !!state.mendixProject,
       },
+      request.model,
       (update) => stream.markdown(update),
       token
     );

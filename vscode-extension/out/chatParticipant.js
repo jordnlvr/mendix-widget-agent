@@ -134,13 +134,8 @@ class MendixWidgetChatParticipant {
         stream.markdown(`Let me analyze your requirements...\n\n`);
         const analysisPrompt = this.buildAnalysisPrompt(userPrompt);
         try {
-            // Get AI analysis - use any available model (works with GPT-4, Claude, etc.)
-            const models = await vscode.lm.selectChatModels({});
-            const model = models[0];
-            if (!model) {
-                stream.markdown(`⚠️ No AI model available. Using template-based generation.\n\n`);
-                return await this.fallbackToTemplateSelection(stream);
-            }
+            // Use the SAME model the user is chatting with - no selection needed!
+            const model = request.model;
             const messages = [vscode.LanguageModelChatMessage.User(analysisPrompt)];
             const response = await model.sendRequest(messages, {}, token);
             let analysisResult = '';
@@ -203,7 +198,7 @@ class MendixWidgetChatParticipant {
         const userPrompt = request.prompt.trim().toLowerCase();
         // Check for confirmations
         if (state.stage === 'gathering' && this.isConfirmation(userPrompt)) {
-            return await this.proceedWithBuild(stream, token, state, sessionId);
+            return await this.proceedWithBuild(request, stream, token, state, sessionId);
         }
         // Check for path-like inputs when we're gathering
         if (state.stage === 'gathering') {
@@ -293,7 +288,7 @@ class MendixWidgetChatParticipant {
                 // User provided error text
                 stream.markdown(`---\n\n`);
                 stream.markdown(`## Analyzing Provided Errors...\n\n`);
-                const analysis = await this.beastMode.analyzeError(request.prompt);
+                const analysis = await this.beastMode.analyzeError(request.prompt, request.model);
                 stream.markdown(analysis);
             }
             return {};
@@ -303,7 +298,7 @@ class MendixWidgetChatParticipant {
             stream.markdown(`\`\`\`\n${error}\n\`\`\`\n\n`);
         }
         stream.markdown(`## 🔍 Researching Solutions...\n\n`);
-        const fixes = await this.buildLoop.researchFixes(state.buildErrors);
+        const fixes = await this.buildLoop.researchFixes(state.buildErrors, request.model);
         stream.markdown(fixes);
         return {};
     }
@@ -326,7 +321,7 @@ class MendixWidgetChatParticipant {
         }
         stream.markdown(`# 🔬 Beast Mode: "${topic}"\n\n`);
         stream.markdown(`*Initiating 6-tier exhaustive research...*\n\n`);
-        const research = await this.beastMode.research(topic, (update) => {
+        const research = await this.beastMode.research(topic, request.model, (update) => {
             stream.markdown(update);
         });
         stream.markdown(`\n---\n\n`);
@@ -341,7 +336,7 @@ class MendixWidgetChatParticipant {
         }
         return {};
     }
-    async proceedWithBuild(stream, token, state, sessionId) {
+    async proceedWithBuild(request, stream, token, state, sessionId) {
         if (!state.widgetConfig?.name) {
             stream.markdown(`❌ Widget configuration incomplete. Please provide more details.\n`);
             return {};
@@ -349,12 +344,12 @@ class MendixWidgetChatParticipant {
         state.stage = 'building';
         this.conversationStates.set(sessionId, state);
         stream.markdown(`# 🏗️ Building Widget: ${state.widgetConfig.name}\n\n`);
-        // Execute the build with the build loop
+        // Execute the build with the build loop (passing the chat model)
         const result = await this.buildLoop.execute(state.widgetConfig, {
             workFolder: state.workFolder,
             mendixProject: state.mendixProject,
             autoDeploy: !!state.mendixProject,
-        }, (update) => stream.markdown(update), token);
+        }, request.model, (update) => stream.markdown(update), token);
         if (result.success) {
             stream.markdown(`\n---\n\n`);
             stream.markdown(`# ✅ Widget Ready!\n\n`);

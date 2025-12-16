@@ -114,8 +114,11 @@ class BeastModeResearch {
     /**
      * Perform exhaustive research on a topic
      * NOW CHECKS LOCAL KNOWLEDGE FIRST before external research!
+     * @param topic - The topic to research
+     * @param model - The language model to use (from request.model)
+     * @param progressCallback - Optional progress callback
      */
-    async research(topic, progressCallback) {
+    async research(topic, model, progressCallback) {
         const codeExamples = [];
         const sources = [];
         let summary = '';
@@ -151,14 +154,8 @@ class BeastModeResearch {
         else {
             progressCallback?.(`No cached knowledge found. Proceeding with external research...\n\n`);
         }
-        // Continue with external research
+        // Continue with external research using the model from the chat session
         try {
-            // Use any available model (works with GPT-4, Claude, etc.)
-            const models = await vscode.lm.selectChatModels({});
-            const model = models[0];
-            if (!model) {
-                return this.getFallbackResearch(topic);
-            }
             // Build comprehensive research prompt, including local knowledge context
             const researchPrompt = this.buildResearchPrompt(topic, localKnowledge);
             progressCallback?.(`### Searching external tiers...\n\n`);
@@ -189,15 +186,11 @@ class BeastModeResearch {
     }
     /**
      * Analyze build errors and research solutions
+     * @param errorText - The error text to analyze
+     * @param model - The language model to use (from request.model)
      */
-    async analyzeError(errorText) {
+    async analyzeError(errorText, model) {
         try {
-            // Use any available model (works with GPT-4, Claude, etc.)
-            const models = await vscode.lm.selectChatModels({});
-            const model = models[0];
-            if (!model) {
-                return this.getGenericErrorAdvice(errorText);
-            }
             const prompt = `You are a Mendix Pluggable Widget expert. Analyze this build error and provide:
 1. What caused the error
 2. How to fix it (with code examples)
