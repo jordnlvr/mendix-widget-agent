@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+typings/
+*.mpk
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Test artifacts
+*_FAILED_*/
+
+# Archive (don't include in releases)
+_Archive*/

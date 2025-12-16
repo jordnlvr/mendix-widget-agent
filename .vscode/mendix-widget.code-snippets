@@ -1,0 +1,381 @@
+{
+  "Mendix Property: String": {
+    "prefix": [
+      "mx-prop-string",
+      "mxs"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"string\" required=\"${2|true,false|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget string property"
+  },
+  "Mendix Property: String with Default": {
+    "prefix": [
+      "mx-prop-string-default",
+      "mxsd"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"string\" required=\"${2|false,true|}\" defaultValue=\"${3:default}\">",
+      "    <caption>${4:Caption}</caption>",
+      "    <description>${5:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget string property with default value"
+  },
+  "Mendix Property: Boolean": {
+    "prefix": [
+      "mx-prop-boolean",
+      "mxb"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"boolean\" defaultValue=\"${2|true,false|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget boolean property"
+  },
+  "Mendix Property: Integer": {
+    "prefix": [
+      "mx-prop-integer",
+      "mxi"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"integer\" defaultValue=\"${2:0}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget integer property"
+  },
+  "Mendix Property: Decimal": {
+    "prefix": [
+      "mx-prop-decimal",
+      "mxd"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"decimal\" defaultValue=\"${2:0.0}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget decimal property"
+  },
+  "Mendix Property: Enumeration": {
+    "prefix": [
+      "mx-prop-enum",
+      "mxe"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"enumeration\" defaultValue=\"${2:option1}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <enumerationValues>",
+      "        <enumerationValue key=\"${2:option1}\">${5:Option 1}</enumerationValue>",
+      "        <enumerationValue key=\"${6:option2}\">${7:Option 2}</enumerationValue>",
+      "        <enumerationValue key=\"${8:option3}\">${9:Option 3}</enumerationValue>",
+      "    </enumerationValues>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget enumeration property with options"
+  },
+  "Mendix Property: TextTemplate": {
+    "prefix": [
+      "mx-prop-texttemplate",
+      "mxt"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"textTemplate\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget text template (supports parameters)"
+  },
+  "Mendix Property: Expression (String)": {
+    "prefix": [
+      "mx-prop-expression-string",
+      "mxes"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"expression\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <returnType type=\"String\" />",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget expression returning string"
+  },
+  "Mendix Property: Expression (Boolean)": {
+    "prefix": [
+      "mx-prop-expression-bool",
+      "mxeb"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"expression\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <returnType type=\"Boolean\" />",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget expression returning boolean"
+  },
+  "Mendix Property: Expression (Integer)": {
+    "prefix": [
+      "mx-prop-expression-int",
+      "mxei"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"expression\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <returnType type=\"Integer\" />",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget expression returning integer"
+  },
+  "Mendix Property: Action": {
+    "prefix": [
+      "mx-prop-action",
+      "mxa"
+    ],
+    "body": [
+      "<property key=\"${1:onClick}\" type=\"action\" required=\"${2|false,true|}\">",
+      "    <caption>${3:On Click}</caption>",
+      "    <description>${4:Action to perform}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget action property (event handler)"
+  },
+  "Mendix Property: Attribute (String)": {
+    "prefix": [
+      "mx-prop-attribute-string",
+      "mxas"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"attribute\" required=\"${2|true,false|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <attributeTypes>",
+      "        <attributeType name=\"String\" />",
+      "    </attributeTypes>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget attribute (String type)"
+  },
+  "Mendix Property: Attribute (Multiple Types)": {
+    "prefix": [
+      "mx-prop-attribute-multi",
+      "mxam"
+    ],
+    "body": [
+      "<property key=\"${1:propertyKey}\" type=\"attribute\" required=\"${2|true,false|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Description}</description>",
+      "    <attributeTypes>",
+      "        <attributeType name=\"String\" />",
+      "        <attributeType name=\"Integer\" />",
+      "        <attributeType name=\"Long\" />",
+      "        <attributeType name=\"Decimal\" />",
+      "    </attributeTypes>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget attribute (multiple allowed types)"
+  },
+  "Mendix Property: Datasource": {
+    "prefix": [
+      "mx-prop-datasource",
+      "mxds"
+    ],
+    "body": [
+      "<property key=\"${1:dataSource}\" type=\"datasource\" isList=\"true\" required=\"${2|true,false|}\">",
+      "    <caption>${3:Data source}</caption>",
+      "    <description>${4:The list of items to display}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget datasource property"
+  },
+  "Mendix Property: Widgets (Container)": {
+    "prefix": [
+      "mx-prop-widgets",
+      "mxw"
+    ],
+    "body": [
+      "<property key=\"${1:content}\" type=\"widgets\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Content}</caption>",
+      "    <description>${4:Widget content}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget container (for child widgets)"
+  },
+  "Mendix Property: Widgets with Datasource": {
+    "prefix": [
+      "mx-prop-widgets-ds",
+      "mxwds"
+    ],
+    "body": [
+      "<property key=\"${1:content}\" type=\"widgets\" dataSource=\"${2:dataSource}\" required=\"${3|false,true|}\">",
+      "    <caption>${4:Content}</caption>",
+      "    <description>${5:Repeating content for each item}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget container linked to datasource"
+  },
+  "Mendix Property: Image": {
+    "prefix": [
+      "mx-prop-image",
+      "mximg"
+    ],
+    "body": [
+      "<property key=\"${1:image}\" type=\"image\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Image}</caption>",
+      "    <description>${4:Image to display}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget image property"
+  },
+  "Mendix Property: Icon": {
+    "prefix": [
+      "mx-prop-icon",
+      "mxicon"
+    ],
+    "body": [
+      "<property key=\"${1:icon}\" type=\"icon\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Icon}</caption>",
+      "    <description>${4:Icon to display}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget icon property"
+  },
+  "Mendix Property: Association": {
+    "prefix": [
+      "mx-prop-association",
+      "mxassoc"
+    ],
+    "body": [
+      "<property key=\"${1:associationKey}\" type=\"association\" required=\"${2|true,false|}\">",
+      "    <caption>${3:Association}</caption>",
+      "    <description>${4:Association to link}</description>",
+      "    <associationTypes>",
+      "        <associationType name=\"Reference\" />",
+      "    </associationTypes>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget association property"
+  },
+  "Mendix Property: Object (Nested)": {
+    "prefix": [
+      "mx-prop-object",
+      "mxobj"
+    ],
+    "body": [
+      "<property key=\"${1:objectKey}\" type=\"object\" isList=\"${2|false,true|}\">",
+      "    <caption>${3:Caption}</caption>",
+      "    <description>${4:Grouped properties}</description>",
+      "    <properties>",
+      "        <property key=\"${5:nestedKey}\" type=\"string\">",
+      "            <caption>${6:Nested Caption}</caption>",
+      "            <description>${7:Nested description}</description>",
+      "        </property>",
+      "    </properties>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget object property (nested group)"
+  },
+  "Mendix Property: Selection (Single)": {
+    "prefix": [
+      "mx-prop-selection-single",
+      "mxsel"
+    ],
+    "body": [
+      "<property key=\"${1:selection}\" type=\"datasource\" isList=\"false\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Selection}</caption>",
+      "    <description>${4:Currently selected item}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget single selection"
+  },
+  "Mendix Property: Selection (Multi)": {
+    "prefix": [
+      "mx-prop-selection-multi",
+      "mxselm"
+    ],
+    "body": [
+      "<property key=\"${1:selection}\" type=\"datasource\" isList=\"true\" required=\"${2|false,true|}\">",
+      "    <caption>${3:Selection}</caption>",
+      "    <description>${4:Currently selected items}</description>",
+      "</property>"
+    ],
+    "description": "Mendix pluggable widget multi-selection"
+  },
+  "Mendix Property Group": {
+    "prefix": [
+      "mx-propertygroup",
+      "mxpg"
+    ],
+    "body": [
+      "<propertyGroup caption=\"${1:Group Name}\">",
+      "    $0",
+      "</propertyGroup>"
+    ],
+    "description": "Mendix pluggable widget property group"
+  },
+  "Mendix System Property: Label": {
+    "prefix": [
+      "mx-sys-label",
+      "mxsysl"
+    ],
+    "body": [
+      "<systemProperty key=\"Label\" />"
+    ],
+    "description": "Mendix system property for label"
+  },
+  "Mendix System Property: Name": {
+    "prefix": [
+      "mx-sys-name",
+      "mxsysn"
+    ],
+    "body": [
+      "<systemProperty key=\"Name\" />"
+    ],
+    "description": "Mendix system property for name"
+  },
+  "Mendix System Property: Tabindex": {
+    "prefix": [
+      "mx-sys-tabindex",
+      "mxsyst"
+    ],
+    "body": [
+      "<systemProperty key=\"Tabindex\" />"
+    ],
+    "description": "Mendix system property for tab index"
+  },
+  "Mendix Complete Widget XML": {
+    "prefix": [
+      "mx-widget-full",
+      "mxfull"
+    ],
+    "body": [
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+      "<widget id=\"${1:company}.${2:widgetName}\" pluginWidget=\"true\" needsEntityContext=\"${3|false,true|}\"",
+      "        supportedPlatform=\"Web\" offlineCapable=\"true\"",
+      "        xmlns=\"http://www.mendix.com/widget/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"",
+      "        xsi:schemaLocation=\"http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd\">",
+      "    <name>${4:Widget Name}</name>",
+      "    <description>${5:Widget description}</description>",
+      "    <icon/>",
+      "    <properties>",
+      "        <propertyGroup caption=\"General\">",
+      "            $0",
+      "        </propertyGroup>",
+      "        <propertyGroup caption=\"Events\">",
+      "        </propertyGroup>",
+      "    </properties>",
+      "</widget>"
+    ],
+    "description": "Complete Mendix pluggable widget XML skeleton"
+  }
+}

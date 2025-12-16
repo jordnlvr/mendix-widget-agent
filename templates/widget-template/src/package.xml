@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    package.xml - Mendix Widget Package Manifest
+    
+    This file defines how the widget is packaged and distributed.
+    It lists all files that should be included in the .mpk bundle.
+-->
+<package xmlns="http://www.mendix.com/package/1.0/">
+  <clientModule name="{{WidgetName}}" version="{{version}}"
+    xmlns="http://www.mendix.com/clientModule/1.0/">
+    <!-- Widget Definition -->
+    <widgetFiles>
+      <widgetFile path="{{WidgetName}}.xml"/>
+    </widgetFiles>
+
+    <!-- Runtime Files (Webpack bundled) -->
+    <files>
+      <file path="{{WidgetName}}.js"/>
+      <file path="{{WidgetName}}.js.LICENSE.txt" />
+      <file path="{{WidgetName}}.css"/>
+      <file path="{{WidgetName}}.editorPreview.js"/>
+      <file path="{{WidgetName}}.editorConfig.js"/>
+    </files>
+  </clientModule>
+</package>

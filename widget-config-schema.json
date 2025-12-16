@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mendix Widget Configuration",
+  "description": "Configuration schema for generating Mendix pluggable widgets",
+  "type": "object",
+  "required": ["name", "description", "category"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9]+$",
+      "description": "PascalCase widget name (e.g., SmartButton)"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable name shown in Studio Pro"
+    },
+    "description": {
+      "type": "string",
+      "description": "Widget description for Studio Pro"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["Display", "Input", "Structure", "Data controls", "Menus & navigation"],
+      "description": "Studio Pro toolbox category"
+    },
+    "company": {
+      "type": "string",
+      "default": "blueprintmx",
+      "description": "Company/package namespace"
+    },
+    "author": {
+      "type": "string",
+      "default": "Kelly Seale",
+      "description": "Author name"
+    },
+    "needsEntityContext": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether widget requires enclosing data view"
+    },
+    "offlineCapable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether widget works offline"
+    },
+    "properties": {
+      "type": "array",
+      "description": "Widget properties (appears in Studio Pro properties panel)",
+      "items": {
+        "type": "object",
+        "required": ["key", "type", "caption"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-zA-Z0-9]*$",
+            "description": "Property key (camelCase)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "boolean",
+              "integer",
+              "decimal",
+              "enumeration",
+              "textTemplate",
+              "expression",
+              "action",
+              "attribute",
+              "datasource",
+              "selection",
+              "association",
+              "image",
+              "icon",
+              "widgets",
+              "object"
+            ],
+            "description": "Property type"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Label shown in Studio Pro"
+          },
+          "description": {
+            "type": "string",
+            "description": "Help text for property"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether property is required"
+          },
+          "defaultValue": {
+            "description": "Default value for property"
+          },
+          "options": {
+            "type": "array",
+            "description": "Options for enumeration type",
+            "items": {
+              "type": "object",
+              "required": ["key", "caption"],
+              "properties": {
+                "key": { "type": "string" },
+                "caption": { "type": "string" }
+              }
+            }
+          },
+          "attributeTypes": {
+            "type": "array",
+            "description": "Allowed attribute types",
+            "items": {
+              "type": "string",
+              "enum": [
+                "String",
+                "Integer",
+                "Long",
+                "Decimal",
+                "Boolean",
+                "DateTime",
+                "Enum",
+                "AutoNumber"
+              ]
+            }
+          },
+          "returnType": {
+            "type": "string",
+            "enum": ["Boolean", "String", "Integer", "Decimal", "DateTime"],
+            "description": "Return type for expression properties"
+          },
+          "dataSource": {
+            "type": "string",
+            "description": "Reference to datasource property key"
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "description": "Action properties (microflow/nanoflow triggers)",
+      "items": {
+        "type": "object",
+        "required": ["key", "caption"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^on[A-Z][a-zA-Z]*$",
+            "description": "Event key (starts with 'on', e.g., onClick)"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Label shown in Studio Pro"
+          },
+          "description": {
+            "type": "string",
+            "description": "Help text for event"
+          },
+          "dataSource": {
+            "type": "string",
+            "description": "Reference to datasource for context"
+          }
+        }
+      }
+    },
+    "systemProperties": {
+      "type": "array",
+      "description": "Mendix system properties to include",
+      "items": {
+        "type": "string",
+        "enum": ["Name", "TabIndex", "Visibility", "Editability", "Label"]
+      },
+      "default": ["Name", "Visibility"]
+    },
+    "propertyGroups": {
+      "type": "array",
+      "description": "Custom property grouping (tabs and sections)",
+      "items": {
+        "type": "object",
+        "required": ["caption"],
+        "properties": {
+          "caption": { "type": "string" },
+          "properties": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["caption", "properties"],
+              "properties": {
+                "caption": { "type": "string" },
+                "properties": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

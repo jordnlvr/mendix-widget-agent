@@ -1,0 +1,107 @@
+{
+  "$schema": "../widget-config-schema.json",
+  "name": "DataCard",
+  "displayName": "Data Card",
+  "description": "A card displaying data from a datasource with custom content",
+  "category": "Data controls",
+  "company": "blueprintmx",
+  "author": "Kelly Seale",
+  "needsEntityContext": false,
+  "offlineCapable": true,
+
+  "properties": [
+    {
+      "key": "datasource",
+      "type": "datasource",
+      "caption": "Data source",
+      "description": "The data to display in cards",
+      "required": true
+    },
+    {
+      "key": "cardContent",
+      "type": "widgets",
+      "caption": "Card content",
+      "description": "Content to show inside each card",
+      "dataSource": "datasource",
+      "required": true
+    },
+    {
+      "key": "titleAttribute",
+      "type": "attribute",
+      "caption": "Title",
+      "description": "Attribute to use as card title",
+      "dataSource": "datasource",
+      "attributeTypes": ["String"],
+      "required": false
+    },
+    {
+      "key": "cardStyle",
+      "type": "enumeration",
+      "caption": "Card style",
+      "description": "Visual style of the card",
+      "defaultValue": "default",
+      "options": [
+        { "key": "default", "caption": "Default" },
+        { "key": "bordered", "caption": "Bordered" },
+        { "key": "elevated", "caption": "Elevated" },
+        { "key": "minimal", "caption": "Minimal" }
+      ]
+    },
+    {
+      "key": "columns",
+      "type": "integer",
+      "caption": "Columns",
+      "description": "Number of columns in grid layout",
+      "defaultValue": 3
+    },
+    {
+      "key": "showEmptyMessage",
+      "type": "boolean",
+      "caption": "Show empty message",
+      "description": "Show message when no data",
+      "defaultValue": true
+    },
+    {
+      "key": "emptyMessage",
+      "type": "textTemplate",
+      "caption": "Empty message",
+      "description": "Message to show when no data",
+      "required": false
+    }
+  ],
+
+  "events": [
+    {
+      "key": "onCardClick",
+      "caption": "On card click",
+      "description": "Action when a card is clicked",
+      "dataSource": "datasource"
+    }
+  ],
+
+  "systemProperties": ["Name", "Visibility"],
+
+  "propertyGroups": [
+    {
+      "caption": "General",
+      "sections": [
+        {
+          "caption": "Data source",
+          "properties": ["datasource", "cardContent", "titleAttribute"]
+        },
+        {
+          "caption": "Appearance",
+          "properties": ["cardStyle", "columns"]
+        },
+        {
+          "caption": "Empty state",
+          "properties": ["showEmptyMessage", "emptyMessage"]
+        }
+      ]
+    },
+    {
+      "caption": "Events",
+      "properties": ["onCardClick"]
+    }
+  ]
+}

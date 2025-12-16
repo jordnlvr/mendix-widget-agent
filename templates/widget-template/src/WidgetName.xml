@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="com.{{companyLower}}.widget.custom.{{widgetNameLower}}.{{WidgetName}}" pluginWidget="true" offlineCapable="true"
+        needsEntityContext="{{needsEntityContext}}"
+        xmlns="http://www.mendix.com/widget/1.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../../../../node_modules/mendix/custom_widget.xsd">
+    <name>{{WidgetDisplayName}}</name>
+    <description>{{description}}</description>
+    <studioProCategory>{{studioProCategory}}</studioProCategory>
+    <properties>
+        <propertyGroup caption="General">
+            <propertyGroup caption="Data">
+                <property key="textValue" type="textTemplate" required="false">
+                    <caption>Value</caption>
+                    <description>The text to display</description>
+                    <translations>
+                        <translation lang="en_US">{{defaultText}}</translation>
+                    </translations>
+                </property>
+                <property key="styleType" type="enumeration" required="true" defaultValue="primary">
+                    <caption>Style</caption>
+                    <description>Visual style variant</description>
+                    <enumerationValues>
+                        <enumerationValue key="primary">Primary</enumerationValue>
+                        <enumerationValue key="secondary">Secondary</enumerationValue>
+                        <enumerationValue key="success">Success</enumerationValue>
+                        <enumerationValue key="warning">Warning</enumerationValue>
+                        <enumerationValue key="danger">Danger</enumerationValue>
+                        <enumerationValue key="info">Info</enumerationValue>
+                    </enumerationValues>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Events">
+                <property key="onClick" type="action" required="false">
+                    <caption>On click</caption>
+                    <description>Action to perform when clicked</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Visibility">
+                <systemProperty key="Visibility" />
+            </propertyGroup>
+            <propertyGroup caption="Common">
+                <systemProperty key="Name" />
+                <systemProperty key="TabIndex" />
+            </propertyGroup>
+        </propertyGroup>
+    </properties>
+</widget>
