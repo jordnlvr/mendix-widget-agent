@@ -15,6 +15,7 @@ npm-publishable solution with a beautiful web UI.
 ### Added
 
 - **🌐 npm/npx Support**
+
   - `npx create-mendix-widget` - works on Windows, macOS, and Linux
   - Short alias: `cmw`
   - Interactive wizard mode
@@ -22,6 +23,7 @@ npm-publishable solution with a beautiful web UI.
   - Config mode: `--config widget.json`
 
 - **🖥️ Web UI**
+
   - Visual widget configurator at `web/index.html`
   - Quick-start templates (click to load)
   - Add properties and events visually
@@ -30,6 +32,7 @@ npm-publishable solution with a beautiful web UI.
   - Dark theme with smooth animations
 
 - **📦 10 Built-in Templates**
+
   - `status-badge` - Colored status indicator with label
   - `data-card` - Repeating card layout for datasource
   - `text-input` - Custom validated input field
