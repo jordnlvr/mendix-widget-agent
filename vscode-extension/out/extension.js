@@ -56,7 +56,7 @@ const generatorBridge_1 = require("./generatorBridge");
 const mendixPathValidator_1 = require("./mendixPathValidator");
 const widgetAgentTools_1 = require("./widgetAgentTools");
 function activate(context) {
-    console.log('[MendixWidgetAgent] v2.4.1 - Enhanced Interview Edition activating...');
+    console.log('[MendixWidgetAgent] v2.4.4 - Interview Enforcement & Drop Zones activating...');
     // Initialize components
     const pathValidator = new mendixPathValidator_1.MendixPathValidator();
     const generatorBridge = new generatorBridge_1.WidgetGeneratorBridge(context);

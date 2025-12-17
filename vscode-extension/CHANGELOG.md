@@ -32,7 +32,7 @@ Improvements based on user testing to ensure AI follows the interview flow and c
 - **Tool modelDescription** - Explicit instructions for AI behavior:
   - "(1) Do NOT assume or default company/author values"
   - "(2) If user provides an icon file path, USE that file"
-  - "(3) Check the workFolder for any *.svg or *.png files"
+  - "(3) Check the workFolder for any _.svg or _.png files"
 
 ### Technical
 

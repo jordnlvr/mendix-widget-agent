@@ -690,12 +690,13 @@ ${config.events
     }
     generatePreview(dir, config) {
         // Check if widget has any 'widgets' type properties (drop zones)
-        const widgetProperties = config.properties.filter(p => p.type === 'widgets');
+        const widgetProperties = config.properties.filter((p) => p.type === 'widgets');
         const hasDropZones = widgetProperties.length > 0;
         let preview;
         if (hasDropZones) {
             // Generate preview with proper drop zone support using JSX renderer pattern
-            const dropZoneRenders = widgetProperties.map(p => `
+            const dropZoneRenders = widgetProperties
+                .map((p) => `
             {/* ${p.caption} drop zone */}
             {props.${p.key} && typeof props.${p.key} === 'object' && props.${p.key}.renderer && (
                 <div className="widget-${config.name.toLowerCase()}-dropzone" style={{
@@ -711,7 +712,8 @@ ${config.events
                         return <Renderer><div style={{ textAlign: 'center', color: '#9ca3af' }}>Drop widgets here</div></Renderer>;
                     })()}
                 </div>
-            )}`).join('\n');
+            )}`)
+                .join('\n');
             preview = `/**
  * ${config.name} Editor Preview
  * Provides drop zones for widget containers in Mendix Studio Pro

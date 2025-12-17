@@ -1017,7 +1017,9 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         response += `**💡 Tip:** Place your icon file in the work folder and I'll auto-detect it!\n\n`;
         response += `**Options:**\n`;
         response += `- Path to SVG: \`D:\\Icons\\my-widget.svg\`\n`;
-        response += `- Place file in work folder: \`${requirements.workFolder || '[workFolder]'}\\icon.svg\`\n`;
+        response += `- Place file in work folder: \`${
+          requirements.workFolder || '[workFolder]'
+        }\\icon.svg\`\n`;
         response += `- Type "default" to use a generic Mendix-style icon\n`;
         response += `- Type "skip" to handle icons later\n`;
         break;

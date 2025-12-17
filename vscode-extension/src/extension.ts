@@ -21,7 +21,7 @@ import { MendixPathValidator } from './mendixPathValidator';
 import { registerAllTools } from './widgetAgentTools';
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('[MendixWidgetAgent] v2.4.1 - Enhanced Interview Edition activating...');
+  console.log('[MendixWidgetAgent] v2.4.4 - Interview Enforcement & Drop Zones activating...');
 
   // Initialize components
   const pathValidator = new MendixPathValidator();
