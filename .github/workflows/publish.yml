@@ -1,0 +1,35 @@
+name: Publish Extension
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on version tags like v2.4.0
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
+        
+      - name: Compile
+        working-directory: ./vscode-extension
+        run: npm run compile
+        
+      - name: Publish to VS Code Marketplace
+        working-directory: ./vscode-extension
+        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
+        
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: vscode-extension/*.vsix
+          generate_release_notes: true
