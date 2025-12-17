@@ -689,17 +689,82 @@ ${config.events
         fs.writeFileSync(path.join(dir, 'src', `${config.name}.tsx`), component);
     }
     generatePreview(dir, config) {
-        const preview = `import { ReactElement, createElement } from 'react';
-import { ${config.name}Props } from './${config.name}';
+        // Check if widget has any 'widgets' type properties (drop zones)
+        const widgetProperties = config.properties.filter(p => p.type === 'widgets');
+        const hasDropZones = widgetProperties.length > 0;
+        let preview;
+        if (hasDropZones) {
+            // Generate preview with proper drop zone support using JSX renderer pattern
+            const dropZoneRenders = widgetProperties.map(p => `
+            {/* ${p.caption} drop zone */}
+            {props.${p.key} && typeof props.${p.key} === 'object' && props.${p.key}.renderer && (
+                <div className="widget-${config.name.toLowerCase()}-dropzone" style={{
+                    minHeight: '50px',
+                    padding: '12px',
+                    margin: '8px 0',
+                    border: '2px dashed #e5e7eb',
+                    borderRadius: '4px',
+                    backgroundColor: '#fafafa'
+                }}>
+                    {(() => {
+                        const Renderer = props.${p.key}.renderer;
+                        return <Renderer><div style={{ textAlign: 'center', color: '#9ca3af' }}>Drop widgets here</div></Renderer>;
+                    })()}
+                </div>
+            )}`).join('\n');
+            preview = `/**
+ * ${config.name} Editor Preview
+ * Provides drop zones for widget containers in Mendix Studio Pro
+ */
+import { ReactElement, createElement } from 'react';
+import { ${config.name}PreviewProps } from '../typings/${config.name}Props';
 
-export function preview(props: ${config.name}Props): ReactElement {
+export function preview(props: ${config.name}PreviewProps): ReactElement {
     return (
-        <div className="widget-${config.name.toLowerCase()}-preview">
-            ${config.displayName || config.name} Preview
+        <div className="widget-${config.name.toLowerCase()}-preview" style={{
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            overflow: 'hidden',
+            minHeight: '100px',
+            border: '1px solid #e5e7eb',
+            padding: '12px'
+        }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', marginBottom: '8px' }}>
+                ${config.displayName || config.name}
+            </div>
+${dropZoneRenders}
+        </div>
+    );
+}
+
+export function getPreviewCss(): string {
+    return require('./ui/${config.name}.css');
+}
+`;
+        }
+        else {
+            // Simple preview for non-container widgets
+            preview = `import { ReactElement, createElement } from 'react';
+import { ${config.name}PreviewProps } from '../typings/${config.name}Props';
+
+export function preview(props: ${config.name}PreviewProps): ReactElement {
+    return (
+        <div className="widget-${config.name.toLowerCase()}-preview" style={{
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            backgroundColor: '#ffffff',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            padding: '12px',
+            border: '1px solid #e5e7eb'
+        }}>
+            <span style={{ fontSize: '14px', color: '#4a4a68' }}>${config.displayName || config.name}</span>
         </div>
     );
 }
 `;
+        }
         fs.writeFileSync(path.join(dir, 'src', `${config.name}.editorPreview.tsx`), preview);
     }
     /**

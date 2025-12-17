@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.4.3
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.4
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -9,10 +9,11 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.4.3 Fixes:
- * - Package.xml now uses correct folder path (not .js file)
- * - PNG icons for toolbox (not SVG - was causing tiny icons)
- * - packagePath matches widget ID structure
+ * v2.4.4 Improvements:
+ * - Enforced interview flow: AI MUST ask for company/author, not assume
+ * - Auto-detect icon files in workFolder (SVG/PNG)
+ * - Drop zones now use proper JSX renderer pattern for container widgets
+ * - Updated modelDescription to prevent AI from bypassing interview
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -112,16 +113,16 @@ function activate(context) {
             vscode.window.showInformationMessage(`Template "${selected.label}" selected. In Agent Mode, ask to create a ${selected.template.displayName.toLowerCase()}.`);
         }
     }));
-    // Show welcome message on first activation (updated for v2.4.3)
+    // Show welcome message on first activation (updated for v2.4.4)
     const welcomeVersion = context.globalState.get('mendixWidget.welcomeVersion');
-    if (welcomeVersion !== '2.4.3') {
+    if (welcomeVersion !== '2.4.4') {
         vscode.window
-            .showInformationMessage('🤖 Mendix Widget Agent v2.4.3 - Fixed packaging & toolbox icons!', 'Got it!')
+            .showInformationMessage('🤖 Mendix Widget Agent v2.4.4 - Better interviews, auto-detect icons, working drop zones!', 'Got it!')
             .then(() => {
-            context.globalState.update('mendixWidget.welcomeVersion', '2.4.3');
+            context.globalState.update('mendixWidget.welcomeVersion', '2.4.4');
         });
     }
-    console.log('[MendixWidgetAgent] v2.4.3 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).');
+    console.log('[MendixWidgetAgent] v2.4.4 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).');
 }
 function deactivate() {
     console.log('[MendixWidgetAgent] Deactivated');

@@ -288,6 +288,18 @@ export class CreateWidgetTool implements vscode.LanguageModelTool<ICreateWidgetP
     }
 
     // ========================================================================
+    // STAGE 2.5: Auto-detect icon file in workFolder if not already set
+    // ========================================================================
+    if (requirements.workFolder && !requirements.iconPath) {
+      const detectedIcon = this.detectIconFile(requirements.workFolder);
+      if (detectedIcon) {
+        requirements.iconPath = detectedIcon;
+        // Log that we found an icon
+        console.log(`[Widget Agent] Auto-detected icon file: ${detectedIcon}`);
+      }
+    }
+
+    // ========================================================================
     // STAGE 3: Check what's still missing and ask
     // ========================================================================
     const missingInfo = this.checkMissingInfo(requirements);
@@ -855,6 +867,49 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
   }
 
   /**
+   * Auto-detect icon files in a directory
+   * Looks for SVG or PNG files that could be used as widget icons
+   * @param directory - The folder to scan for icon files
+   * @returns The full path to the first icon file found, or undefined
+   */
+  private detectIconFile(directory: string): string | undefined {
+    const iconExtensions = ['.svg', '.png'];
+    // Common icon-related keywords to prioritize
+    const iconKeywords = ['icon', 'logo', 'badge', 'symbol', 'image'];
+
+    try {
+      if (!fs.existsSync(directory)) {
+        return undefined;
+      }
+
+      const files = fs.readdirSync(directory);
+      const imageFiles = files.filter((file) =>
+        iconExtensions.some((ext) => file.toLowerCase().endsWith(ext))
+      );
+
+      if (imageFiles.length === 0) {
+        return undefined;
+      }
+
+      // Prioritize files with icon-related names
+      const prioritized = imageFiles.sort((a, b) => {
+        const aHasKeyword = iconKeywords.some((kw) => a.toLowerCase().includes(kw));
+        const bHasKeyword = iconKeywords.some((kw) => b.toLowerCase().includes(kw));
+        if (aHasKeyword && !bHasKeyword) return -1;
+        if (!aHasKeyword && bHasKeyword) return 1;
+        // Prefer SVG over PNG
+        if (a.toLowerCase().endsWith('.svg') && !b.toLowerCase().endsWith('.svg')) return -1;
+        if (!a.toLowerCase().endsWith('.svg') && b.toLowerCase().endsWith('.svg')) return 1;
+        return 0;
+      });
+
+      return path.join(directory, prioritized[0]);
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
    * Ask the next question based on what's missing
    * Questions are asked ONE AT A TIME for clarity
    */
@@ -959,8 +1014,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         response += `**Best approach:** Provide one SVG file (64×64) - I'll use it for:\n`;
         response += `1. **Toolbox icon** (converted to PNG)\n`;
         response += `2. **Structure Mode preview** (raw SVG in page editor)\n\n`;
-        response += `**Provide path or respond:**\n`;
+        response += `**💡 Tip:** Place your icon file in the work folder and I'll auto-detect it!\n\n`;
+        response += `**Options:**\n`;
         response += `- Path to SVG: \`D:\\Icons\\my-widget.svg\`\n`;
+        response += `- Place file in work folder: \`${requirements.workFolder || '[workFolder]'}\\icon.svg\`\n`;
         response += `- Type "default" to use a generic Mendix-style icon\n`;
         response += `- Type "skip" to handle icons later\n`;
         break;

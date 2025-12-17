@@ -1,5 +1,5 @@
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.4.3
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.4
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -8,10 +8,11 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.4.3 Fixes:
- * - Package.xml now uses correct folder path (not .js file)
- * - PNG icons for toolbox (not SVG - was causing tiny icons)
- * - packagePath matches widget ID structure
+ * v2.4.4 Improvements:
+ * - Enforced interview flow: AI MUST ask for company/author, not assume
+ * - Auto-detect icon files in workFolder (SVG/PNG)
+ * - Drop zones now use proper JSX renderer pattern for container widgets
+ * - Updated modelDescription to prevent AI from bypassing interview
  */
 
 import * as vscode from 'vscode';
@@ -105,21 +106,21 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Show welcome message on first activation (updated for v2.4.3)
+  // Show welcome message on first activation (updated for v2.4.4)
   const welcomeVersion = context.globalState.get<string>('mendixWidget.welcomeVersion');
-  if (welcomeVersion !== '2.4.3') {
+  if (welcomeVersion !== '2.4.4') {
     vscode.window
       .showInformationMessage(
-        '🤖 Mendix Widget Agent v2.4.3 - Fixed packaging & toolbox icons!',
+        '🤖 Mendix Widget Agent v2.4.4 - Better interviews, auto-detect icons, working drop zones!',
         'Got it!'
       )
       .then(() => {
-        context.globalState.update('mendixWidget.welcomeVersion', '2.4.3');
+        context.globalState.update('mendixWidget.welcomeVersion', '2.4.4');
       });
   }
 
   console.log(
-    '[MendixWidgetAgent] v2.4.3 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
+    '[MendixWidgetAgent] v2.4.4 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
   );
 }
 

@@ -2,6 +2,46 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.4.4] - 2024-12-18
+
+### 🎯 Interview Enforcement & Drop Zone Support
+
+Improvements based on user testing to ensure AI follows the interview flow and container widgets work correctly.
+
+### Fixed
+
+- **AI Skipping Interview Questions** - Updated `modelDescription` with explicit rules:
+  - AI MUST ask for company/author - cannot assume or use defaults without asking
+  - Prevents AI from bypassing interview by providing default values
+- **Drop Zones Not Working** - Rewrote `generatePreview()` function:
+  - Container widgets with `type="widgets"` properties now get proper JSX renderer pattern
+  - Uses `content.renderer` pattern: `<Renderer><div>Drop widgets here</div></Renderer>`
+  - This enables actual drag-and-drop in Studio Pro's structure mode
+
+### Added
+
+- **Auto-Detect Icon Files** - New `detectIconFile()` helper:
+  - Automatically scans workFolder for `.svg` or `.png` files
+  - Prioritizes files with "icon" in the name
+  - Prefers SVG over PNG when both exist
+  - Eliminates need to specify icon path if file is in workFolder
+- **Better Icon Question** - Updated interview to mention auto-detection tip
+
+### Changed
+
+- **Tool modelDescription** - Explicit instructions for AI behavior:
+  - "(1) Do NOT assume or default company/author values"
+  - "(2) If user provides an icon file path, USE that file"
+  - "(3) Check the workFolder for any *.svg or *.png files"
+
+### Technical
+
+- `detectIconFile(directory)` - Returns first icon file found, prioritizing named icons
+- `generatePreview()` - Now detects `type="widgets"` and generates JSX drop zones
+- Stage 2.5 added to workflow - Auto-detect icon between answers and missing check
+
+---
+
 ## [2.4.3] - 2024-12-17
 
 ### 📦 Critical Packaging & Icon Fixes

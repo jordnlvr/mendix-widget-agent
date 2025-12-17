@@ -2,7 +2,7 @@
   "name": "mendix-widget-agent",
   "displayName": "Mendix Widget Agent - AI-Powered Widget Generator",
   "description": "🚀 The #1 Mendix widget generator! AI-powered with smart interviewing, auto-fix, and self-learning. Works with Claude, GPT-4, Copilot. Create production-ready pluggable widgets in minutes, not hours. Converts React/TSX → Mendix widgets. 10+ templates included.",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "publisher": "BlueMatrix",
   "author": {
     "name": "BlueMatrix",
@@ -75,7 +75,7 @@
         "toolReferenceName": "mendix-create",
         "icon": "$(add)",
         "userDescription": "Create a Mendix pluggable widget from a natural language description",
-        "modelDescription": "Creates a Mendix pluggable widget with SMART INTERVIEWING. Asks ALL required questions: company, author, work folder, Mendix project, toolbox category, icon. Remembers preferences for future use. Use when user wants to create/build/generate a Mendix widget.",
+        "modelDescription": "Creates a Mendix pluggable widget with SMART INTERVIEWING. Asks ALL required questions: company, author, work folder, Mendix project, toolbox category, icon. Remembers preferences for future use. Use when user wants to create/build/generate a Mendix widget. CRITICAL RULES: (1) Do NOT assume or default company/author values - ALWAYS ask the user even if you have saved preferences. (2) If user provides an icon file path (SVG or PNG), USE that file - do not generate a default icon. (3) For container widgets with dropzones, ensure properties use type='widgets'. (4) Check the workFolder for any *.svg or *.png files the user may have placed there for the icon.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -85,7 +85,7 @@
             },
             "answers": {
               "type": "object",
-              "description": "Answers to interview questions. Fields: widgetName (PascalCase), company (e.g. blueprintmx), author (your name), workFolder (path), mendixProject (path or 'skip'), toolboxCategory (Display/Input/Data/Container/Visualization), iconPath (path or 'default'), confirm (boolean)"
+              "description": "Answers to interview questions. MUST ASK USER for each field - do not assume: widgetName (PascalCase), company (REQUIRED - ask user, e.g. bluematrix), author (REQUIRED - ask user), workFolder (path), mendixProject (path or 'skip'), toolboxCategory (Display/Input/Data/Container/Visualization), iconPath (check workFolder for *.svg/*.png files user may have provided, or 'default'), confirm (boolean)"
             }
           }
         }
