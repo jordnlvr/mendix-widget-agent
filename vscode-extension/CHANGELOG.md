@@ -2,6 +2,33 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.4.2] - 2024-12-17
+
+### 🔧 Critical Bugfixes - Mendix 11.5 Compatibility
+
+Major fixes for recurring widget build issues that were causing deployment failures.
+
+### Fixed
+
+- **Reserved Property Name** - Changed `class` to `styleClass` (Mendix reserves 'class' for system properties)
+- **Wrong Build Tools Version** - Updated `@mendix/pluggable-widgets-tools` from 10.21.2 to **11.3.0** (required for Mendix 11.x)
+- **ES6 Module Issues** - Version 11.3.0 properly generates `.mjs` files and `moduleType="ESModule"` for Mendix 11.5
+- **Icon Question Skipped** - Fixed interview flow to properly ask about custom icons
+- **Icon Default Handling** - Using "skip" or "default" now properly marks the choice instead of looping
+
+### Changed
+
+- **Notification Version** - Now correctly shows v2.4.x on install
+- **New Extension Icon** - Updated marketplace icon (robotAgent1.png)
+- **Better Console Logs** - Version numbers now consistent throughout
+
+### Technical
+
+- Updated all hardcoded version references from v2.2 to v2.4.x
+- Icon path sentinel value changed from `undefined` to `'default'` for proper state tracking
+
+---
+
 ## [2.4.1] - 2024-12-17
 
 ### 🧠 Enhanced Smart Interview System

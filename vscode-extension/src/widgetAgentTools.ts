@@ -79,7 +79,7 @@ const PROVEN_PATTERNS = {
   // Package.json template - EXACT pattern that works with Mendix 11.5.0
   PACKAGE_JSON: {
     devDependencies: {
-      '@mendix/pluggable-widgets-tools': '^10.21.2',
+      '@mendix/pluggable-widgets-tools': '^11.3.0', // Mendix 11.x requires 11.3.0+
       'cross-env': '^7.0.3',
     },
     dependencies: {
@@ -274,12 +274,13 @@ export class CreateWidgetTool implements vscode.LanguageModelTool<ICreateWidgetP
       }
       if (answers.toolboxCategory) requirements.toolboxCategory = answers.toolboxCategory;
       if (answers.iconPath) {
-        // Handle skip/default responses
+        // Handle skip/default responses - store 'default' so checkMissingInfo knows user made a choice
         if (
           answers.iconPath.toLowerCase() === 'skip' ||
-          answers.iconPath.toLowerCase() === 'default'
+          answers.iconPath.toLowerCase() === 'default' ||
+          answers.iconPath.toLowerCase() === 'none'
         ) {
-          requirements.iconPath = undefined; // Will use default
+          requirements.iconPath = 'default'; // Sentinel: user chose to use default icon
         } else {
           requirements.iconPath = answers.iconPath;
         }
@@ -824,11 +825,12 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
     }
 
     // Always add common styling properties
+    // CRITICAL: 'class' is RESERVED by Mendix - use 'styleClass' instead!
     requirements.properties?.push({
-      key: 'class',
+      key: 'styleClass',
       type: 'string',
-      caption: 'CSS Class',
-      description: 'Additional CSS classes to apply',
+      caption: 'Style Class',
+      description: 'Additional CSS classes to apply to this widget',
     });
 
     return requirements;
@@ -877,7 +879,11 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
     response += `| Work Folder | ${requirements.workFolder || '❓'} |\n`;
     response += `| Mendix Project | ${requirements.mendixProject || '❓ (optional)'} |\n`;
     response += `| Toolbox Category | ${requirements.toolboxCategory || '❓'} |\n`;
-    response += `| Icon | ${requirements.iconPath || '❓ (will use default)'} |\n\n`;
+    response += `| Icon | ${
+      requirements.iconPath === 'default'
+        ? '📦 Default (will generate)'
+        : requirements.iconPath || '❓'
+    } |\n\n`;
 
     if (requirements.properties && requirements.properties.length > 0) {
       response += `**Properties detected:** ${requirements.properties
@@ -1007,7 +1013,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
     response += `\n---\n\n`;
     response += `## 🎨 Icons\n\n`;
 
-    if (requirements.iconPath) {
+    if (requirements.iconPath && requirements.iconPath !== 'default') {
       response += `Using your icon: \`${requirements.iconPath}\`\n`;
     } else {
       response += `I'll generate a default Mendix-style icon. You can customize it later by:\n`;

@@ -69,7 +69,7 @@ const PROVEN_PATTERNS = {
     // Package.json template - EXACT pattern that works with Mendix 11.5.0
     PACKAGE_JSON: {
         devDependencies: {
-            '@mendix/pluggable-widgets-tools': '^10.21.2',
+            '@mendix/pluggable-widgets-tools': '^11.3.0', // Mendix 11.x requires 11.3.0+
             'cross-env': '^7.0.3',
         },
         dependencies: {
@@ -192,10 +192,11 @@ class CreateWidgetTool {
             if (answers.toolboxCategory)
                 requirements.toolboxCategory = answers.toolboxCategory;
             if (answers.iconPath) {
-                // Handle skip/default responses
+                // Handle skip/default responses - store 'default' so checkMissingInfo knows user made a choice
                 if (answers.iconPath.toLowerCase() === 'skip' ||
-                    answers.iconPath.toLowerCase() === 'default') {
-                    requirements.iconPath = undefined; // Will use default
+                    answers.iconPath.toLowerCase() === 'default' ||
+                    answers.iconPath.toLowerCase() === 'none') {
+                    requirements.iconPath = 'default'; // Sentinel: user chose to use default icon
                 }
                 else {
                     requirements.iconPath = answers.iconPath;
@@ -312,7 +313,9 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         // SMART PATTERN DETECTION - Infer properties, events, and category
         // =======================================================================
         // Status/Badge patterns - very common in business apps
-        if (lowerDesc.includes('status') || lowerDesc.includes('badge') || lowerDesc.includes('indicator')) {
+        if (lowerDesc.includes('status') ||
+            lowerDesc.includes('badge') ||
+            lowerDesc.includes('indicator')) {
             requirements.properties?.push({
                 key: 'statusAttribute',
                 type: 'attribute',
@@ -373,7 +376,9 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             });
         }
         // Color patterns
-        if (lowerDesc.includes('color') || lowerDesc.includes('colour') || lowerDesc.includes('theme')) {
+        if (lowerDesc.includes('color') ||
+            lowerDesc.includes('colour') ||
+            lowerDesc.includes('theme')) {
             requirements.properties?.push({
                 key: 'primaryColor',
                 type: 'string',
@@ -413,7 +418,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Input';
         }
         // Progress/Percentage patterns
-        if (lowerDesc.includes('progress') || lowerDesc.includes('percent') || lowerDesc.includes('gauge') || lowerDesc.includes('meter')) {
+        if (lowerDesc.includes('progress') ||
+            lowerDesc.includes('percent') ||
+            lowerDesc.includes('gauge') ||
+            lowerDesc.includes('meter')) {
             requirements.properties?.push({
                 key: 'value',
                 type: 'expression',
@@ -435,7 +443,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Display';
         }
         // Card/Container patterns
-        if (lowerDesc.includes('card') || lowerDesc.includes('panel') || lowerDesc.includes('box') || lowerDesc.includes('container')) {
+        if (lowerDesc.includes('card') ||
+            lowerDesc.includes('panel') ||
+            lowerDesc.includes('box') ||
+            lowerDesc.includes('container')) {
             requirements.properties?.push({
                 key: 'title',
                 type: 'expression',
@@ -451,7 +462,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Container';
         }
         // List/Grid patterns
-        if (lowerDesc.includes('list') || lowerDesc.includes('grid') || lowerDesc.includes('table') || lowerDesc.includes('data')) {
+        if (lowerDesc.includes('list') ||
+            lowerDesc.includes('grid') ||
+            lowerDesc.includes('table') ||
+            lowerDesc.includes('data')) {
             requirements.properties?.push({
                 key: 'dataSource',
                 type: 'datasource',
@@ -467,7 +481,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Data';
         }
         // Rating/Stars patterns
-        if (lowerDesc.includes('rating') || lowerDesc.includes('star') || lowerDesc.includes('review') || lowerDesc.includes('score')) {
+        if (lowerDesc.includes('rating') ||
+            lowerDesc.includes('star') ||
+            lowerDesc.includes('review') ||
+            lowerDesc.includes('score')) {
             requirements.properties?.push({
                 key: 'ratingAttribute',
                 type: 'attribute',
@@ -494,7 +511,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Input';
         }
         // Modal/Dialog patterns
-        if (lowerDesc.includes('modal') || lowerDesc.includes('dialog') || lowerDesc.includes('popup') || lowerDesc.includes('overlay')) {
+        if (lowerDesc.includes('modal') ||
+            lowerDesc.includes('dialog') ||
+            lowerDesc.includes('popup') ||
+            lowerDesc.includes('overlay')) {
             requirements.properties?.push({
                 key: 'isOpen',
                 type: 'attribute',
@@ -515,7 +535,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Container';
         }
         // Search/Filter patterns
-        if (lowerDesc.includes('search') || lowerDesc.includes('filter') || lowerDesc.includes('find') || lowerDesc.includes('autocomplete')) {
+        if (lowerDesc.includes('search') ||
+            lowerDesc.includes('filter') ||
+            lowerDesc.includes('find') ||
+            lowerDesc.includes('autocomplete')) {
             requirements.properties?.push({
                 key: 'searchAttribute',
                 type: 'attribute',
@@ -536,7 +559,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Input';
         }
         // Upload/File patterns
-        if (lowerDesc.includes('upload') || lowerDesc.includes('file') || lowerDesc.includes('attachment') || lowerDesc.includes('drag')) {
+        if (lowerDesc.includes('upload') ||
+            lowerDesc.includes('file') ||
+            lowerDesc.includes('attachment') ||
+            lowerDesc.includes('drag')) {
             requirements.properties?.push({
                 key: 'acceptedTypes',
                 type: 'string',
@@ -557,7 +583,11 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Input';
         }
         // Chart/Visualization patterns
-        if (lowerDesc.includes('chart') || lowerDesc.includes('graph') || lowerDesc.includes('pie') || lowerDesc.includes('bar') || lowerDesc.includes('line')) {
+        if (lowerDesc.includes('chart') ||
+            lowerDesc.includes('graph') ||
+            lowerDesc.includes('pie') ||
+            lowerDesc.includes('bar') ||
+            lowerDesc.includes('line')) {
             requirements.properties?.push({
                 key: 'dataSource',
                 type: 'datasource',
@@ -579,7 +609,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Visualization';
         }
         // Tab/Accordion patterns
-        if (lowerDesc.includes('tab') || lowerDesc.includes('accordion') || lowerDesc.includes('collapse') || lowerDesc.includes('expand')) {
+        if (lowerDesc.includes('tab') ||
+            lowerDesc.includes('accordion') ||
+            lowerDesc.includes('collapse') ||
+            lowerDesc.includes('expand')) {
             requirements.properties?.push({
                 key: 'activeTab',
                 type: 'attribute',
@@ -594,7 +627,10 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Container';
         }
         // Timer/Countdown patterns
-        if (lowerDesc.includes('timer') || lowerDesc.includes('countdown') || lowerDesc.includes('stopwatch') || lowerDesc.includes('clock')) {
+        if (lowerDesc.includes('timer') ||
+            lowerDesc.includes('countdown') ||
+            lowerDesc.includes('stopwatch') ||
+            lowerDesc.includes('clock')) {
             requirements.properties?.push({
                 key: 'targetDateTime',
                 type: 'attribute',
@@ -635,11 +671,12 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             requirements.toolboxCategory = 'Display';
         }
         // Always add common styling properties
+        // CRITICAL: 'class' is RESERVED by Mendix - use 'styleClass' instead!
         requirements.properties?.push({
-            key: 'class',
+            key: 'styleClass',
             type: 'string',
-            caption: 'CSS Class',
-            description: 'Additional CSS classes to apply',
+            caption: 'Style Class',
+            description: 'Additional CSS classes to apply to this widget',
         });
         return requirements;
     }
@@ -682,7 +719,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         response += `| Work Folder | ${requirements.workFolder || '❓'} |\n`;
         response += `| Mendix Project | ${requirements.mendixProject || '❓ (optional)'} |\n`;
         response += `| Toolbox Category | ${requirements.toolboxCategory || '❓'} |\n`;
-        response += `| Icon | ${requirements.iconPath || '❓ (will use default)'} |\n\n`;
+        response += `| Icon | ${requirements.iconPath === 'default' ? '📦 Default (will generate)' : requirements.iconPath || '❓'} |\n\n`;
         if (requirements.properties && requirements.properties.length > 0) {
             response += `**Properties detected:** ${requirements.properties
                 .map((p) => p.caption)
@@ -793,7 +830,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         }
         response += `\n---\n\n`;
         response += `## 🎨 Icons\n\n`;
-        if (requirements.iconPath) {
+        if (requirements.iconPath && requirements.iconPath !== 'default') {
             response += `Using your icon: \`${requirements.iconPath}\`\n`;
         }
         else {

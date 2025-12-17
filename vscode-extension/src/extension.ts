@@ -1,5 +1,5 @@
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.2.0
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.2
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -8,11 +8,10 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.2.0 Features:
- * - Smart interview flow for widget creation
- * - TSX/React component conversion to Mendix widgets
- * - SVG-first icon approach (toolbox + preview from one file)
- * - Intelligent property/event deduction
+ * v2.4.2 Fixes:
+ * - Mendix 11.5 compatibility (pluggable-widgets-tools 11.3.0)
+ * - Reserved 'class' property error fixed
+ * - Icon question now properly asked in interview
  */
 
 import * as vscode from 'vscode';
@@ -21,7 +20,7 @@ import { MendixPathValidator } from './mendixPathValidator';
 import { registerAllTools } from './widgetAgentTools';
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('[MendixWidgetAgent] v2.2.0 - Smart Interview Edition activating...');
+  console.log('[MendixWidgetAgent] v2.4.1 - Enhanced Interview Edition activating...');
 
   // Initialize components
   const pathValidator = new MendixPathValidator();
@@ -106,21 +105,21 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Show welcome message on first activation (updated for v2.2)
+  // Show welcome message on first activation (updated for v2.4.2)
   const welcomeVersion = context.globalState.get<string>('mendixWidget.welcomeVersion');
-  if (welcomeVersion !== '2.2.0') {
+  if (welcomeVersion !== '2.4.2') {
     vscode.window
       .showInformationMessage(
-        '🤖 Mendix Custom Widget Agent v2.2 - Smart interviews, TSX conversion, SVG icons! Just describe what you need.',
+        '🤖 Mendix Widget Agent v2.4.2 - Fixed Mendix 11.5 compatibility & reserved property errors!',
         'Got it!'
       )
       .then(() => {
-        context.globalState.update('mendixWidget.welcomeVersion', '2.2.0');
+        context.globalState.update('mendixWidget.welcomeVersion', '2.4.2');
       });
   }
 
   console.log(
-    '[MendixWidgetAgent] v2.2.0 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
+    '[MendixWidgetAgent] v2.4.1 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
   );
 }
 

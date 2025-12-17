@@ -682,7 +682,7 @@ ${eventsXml}
         'lint:fix': 'pluggable-widgets-tools lint:fix',
       },
       devDependencies: {
-        '@mendix/pluggable-widgets-tools': '^10.21.2', // EXACT version that works
+        '@mendix/pluggable-widgets-tools': '^11.3.0', // Mendix 11.x requires 11.3.0+
         'cross-env': '^7.0.3',
       },
       dependencies: {

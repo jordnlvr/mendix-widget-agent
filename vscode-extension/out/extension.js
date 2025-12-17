@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.2.0
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.2
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -9,11 +9,10 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.2.0 Features:
- * - Smart interview flow for widget creation
- * - TSX/React component conversion to Mendix widgets
- * - SVG-first icon approach (toolbox + preview from one file)
- * - Intelligent property/event deduction
+ * v2.4.2 Fixes:
+ * - Mendix 11.5 compatibility (pluggable-widgets-tools 11.3.0)
+ * - Reserved 'class' property error fixed
+ * - Icon question now properly asked in interview
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -56,7 +55,7 @@ const generatorBridge_1 = require("./generatorBridge");
 const mendixPathValidator_1 = require("./mendixPathValidator");
 const widgetAgentTools_1 = require("./widgetAgentTools");
 function activate(context) {
-    console.log('[MendixWidgetAgent] v2.2.0 - Smart Interview Edition activating...');
+    console.log('[MendixWidgetAgent] v2.4.1 - Enhanced Interview Edition activating...');
     // Initialize components
     const pathValidator = new mendixPathValidator_1.MendixPathValidator();
     const generatorBridge = new generatorBridge_1.WidgetGeneratorBridge(context);
@@ -113,16 +112,16 @@ function activate(context) {
             vscode.window.showInformationMessage(`Template "${selected.label}" selected. In Agent Mode, ask to create a ${selected.template.displayName.toLowerCase()}.`);
         }
     }));
-    // Show welcome message on first activation (updated for v2.2)
+    // Show welcome message on first activation (updated for v2.4.2)
     const welcomeVersion = context.globalState.get('mendixWidget.welcomeVersion');
-    if (welcomeVersion !== '2.2.0') {
+    if (welcomeVersion !== '2.4.2') {
         vscode.window
-            .showInformationMessage('🤖 Mendix Custom Widget Agent v2.2 - Smart interviews, TSX conversion, SVG icons! Just describe what you need.', 'Got it!')
+            .showInformationMessage('🤖 Mendix Widget Agent v2.4.2 - Fixed Mendix 11.5 compatibility & reserved property errors!', 'Got it!')
             .then(() => {
-            context.globalState.update('mendixWidget.welcomeVersion', '2.2.0');
+            context.globalState.update('mendixWidget.welcomeVersion', '2.4.2');
         });
     }
-    console.log('[MendixWidgetAgent] v2.2.0 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).');
+    console.log('[MendixWidgetAgent] v2.4.1 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).');
 }
 function deactivate() {
     console.log('[MendixWidgetAgent] Deactivated');
