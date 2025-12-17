@@ -2,6 +2,62 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.4.5] - 2025-01-20
+
+### 🔧 Icon & Drop Zone Fixes - Major Overhaul
+
+Complete rewrite of icon and drop zone generation based on analysis of official Mendix widget-resources repository (fieldset-web).
+
+### Fixed
+
+- **Icons Not Appearing in Studio Pro** - Root cause: Was embedding SVG as base64 in `<icon>` XML element
+
+  - Solution: Now generates PNG files with official naming convention: `Widget.icon.png`, `Widget.tile.png`, `Widget.tile.dark.png`
+  - Removed `<icon/>` element from widget XML - Mendix uses file naming convention, not embedded icons
+
+- **Drop Zones Not Working** - Root cause: Missing `editorConfig.ts` file with `getPreview()` function
+
+  - Solution: Now generates TypeScript `editorConfig.ts` with proper `DropZone` type from `@mendix/widget-plugin-platform/preview`
+  - Container widgets get `DropZone` type properties for each `type="widgets"` property
+
+- **Preview Component Pattern Wrong** - Was using complex IIFE pattern that didn't work
+
+  - Solution: Now uses official pattern from fieldset-web: `const ContentRenderer = props.content.renderer; <ContentRenderer>...</ContentRenderer>`
+
+- **Duplicate Properties** - Pattern detection was adding properties multiple times
+
+  - Added `addPropertyIfNotExists()` helper - checks if property key already exists before adding
+  - Added `addEventIfNotExists()` helper - same for events
+
+- **False Positive Pattern Matching** - "drop zone" was triggering "drag" → file upload pattern
+  - Upload pattern now uses word boundaries: `/\b(upload|attachment)\b/`
+  - Excludes "drop zone" and "dropzone" from file pattern matching
+
+### Changed
+
+- **generateEditorConfig()** - Complete rewrite:
+
+  - Container widgets: Generates TypeScript with `DropZone` type imports and proper structure
+  - Non-container widgets: Generates simple JS with row layout preview
+
+- **generatePreview()** - Complete rewrite:
+
+  - Uses `props.content.renderer` pattern directly (official Mendix approach)
+  - No more complex IIFE or custom JSX patterns
+
+- **Pattern Detection** - All patterns updated to use helper functions:
+  - Color, Tooltip, Date/Time, Progress, Card/Container, List/Grid, Rating, Modal, Search, Upload, Chart, Tab, Timer, Icon patterns
+  - `toolboxCategory` assignments now use `if (!requirements.toolboxCategory)` to prevent overwriting
+
+### Technical Details
+
+- Analyzed official `mendix/widgets-resources` repository, specifically `fieldset-web` widget
+- Key files studied: `Fieldset.xml`, `Fieldset.editorConfig.ts`, `Fieldset.editorPreview.tsx`, `Fieldset.tsx`
+- Icon discovery: Official widgets use `.icon.png`, `.tile.png` file naming convention
+- Drop zone discovery: `editorConfig.ts` with `getPreview()` returning `DropZone` type is required
+
+---
+
 ## [2.4.4] - 2024-12-18
 
 ### 🎯 Interview Enforcement & Drop Zone Support

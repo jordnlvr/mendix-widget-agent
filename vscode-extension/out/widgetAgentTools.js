@@ -322,24 +322,47 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         const lowerDesc = description.toLowerCase();
         // =======================================================================
         // SMART PATTERN DETECTION - Infer properties, events, and category
+        // FIXED in v2.4.5: Added deduplication and context-aware matching
         // =======================================================================
+        // Helper function to add property only if key doesn't already exist
+        const addPropertyIfNotExists = (prop) => {
+            if (!requirements.properties?.find((p) => p.key === prop.key)) {
+                requirements.properties?.push(prop);
+            }
+        };
+        // Helper function to add event only if key doesn't already exist
+        const addEventIfNotExists = (event) => {
+            if (!requirements.events?.find((e) => e.key === event.key)) {
+                requirements.events?.push(event);
+            }
+        };
+        // Detect if this is primarily a container widget (drop zones)
+        // This takes priority over other patterns!
+        const isContainerWidget = lowerDesc.includes('container') ||
+            lowerDesc.includes('drop zone') ||
+            lowerDesc.includes('dropzone') ||
+            lowerDesc.includes('drop-zone') ||
+            (lowerDesc.includes('card') && lowerDesc.includes('content')) ||
+            lowerDesc.includes('layout') ||
+            lowerDesc.includes('wrapper');
         // Status/Badge patterns - very common in business apps
         if (lowerDesc.includes('status') ||
             lowerDesc.includes('badge') ||
             lowerDesc.includes('indicator')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'statusAttribute',
                 type: 'attribute',
                 caption: 'Status Attribute',
                 description: 'The attribute that determines the status display',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'colorMapping',
                 type: 'object',
                 caption: 'Color Mapping',
                 description: 'Map status values to colors',
             });
-            requirements.toolboxCategory = 'Display';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Display';
         }
         // Click/Action patterns - most widgets need some interactivity
         if (lowerDesc.includes('click') ||
@@ -347,7 +370,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('action') ||
             lowerDesc.includes('tap') ||
             lowerDesc.includes('press')) {
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onClick',
                 caption: 'On Click',
                 description: 'Action to perform when clicked',
@@ -359,27 +382,27 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('photo') ||
             lowerDesc.includes('avatar') ||
             lowerDesc.includes('thumbnail')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'imageUrl',
                 type: 'expression',
                 caption: 'Image URL',
                 description: 'URL or path to the image',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'altText',
                 type: 'expression',
                 caption: 'Alt Text',
                 description: 'Alternative text for accessibility',
             });
         }
-        // Text/Content patterns
-        if (lowerDesc.includes('text') ||
-            lowerDesc.includes('title') ||
-            lowerDesc.includes('label') ||
-            lowerDesc.includes('content') ||
-            lowerDesc.includes('heading') ||
-            lowerDesc.includes('caption')) {
-            requirements.properties?.push({
+        // Text/Content patterns - BUT NOT for container widgets (they use widgets type)
+        if (!isContainerWidget &&
+            (lowerDesc.includes('text') ||
+                lowerDesc.includes('title') ||
+                lowerDesc.includes('label') ||
+                lowerDesc.includes('heading') ||
+                lowerDesc.includes('caption'))) {
+            addPropertyIfNotExists({
                 key: 'content',
                 type: 'expression',
                 caption: 'Content',
@@ -390,7 +413,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         if (lowerDesc.includes('color') ||
             lowerDesc.includes('colour') ||
             lowerDesc.includes('theme')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'primaryColor',
                 type: 'string',
                 caption: 'Primary Color',
@@ -402,7 +425,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('hover') ||
             lowerDesc.includes('help') ||
             lowerDesc.includes('hint')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'tooltipText',
                 type: 'expression',
                 caption: 'Tooltip Text',
@@ -415,61 +438,66 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('calendar') ||
             lowerDesc.includes('schedule') ||
             lowerDesc.includes('picker')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'dateAttribute',
                 type: 'attribute',
                 caption: 'Date Attribute',
                 description: 'Attribute to store the selected date/time',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onChange',
                 caption: 'On Change',
                 description: 'Triggered when the date/time changes',
             });
-            requirements.toolboxCategory = 'Input';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Input';
         }
         // Progress/Percentage patterns
         if (lowerDesc.includes('progress') ||
             lowerDesc.includes('percent') ||
             lowerDesc.includes('gauge') ||
             lowerDesc.includes('meter')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'value',
                 type: 'expression',
                 caption: 'Value',
                 description: 'Current progress value (0-100)',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'maxValue',
                 type: 'expression',
                 caption: 'Max Value',
                 description: 'Maximum value (default 100)',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'showLabel',
                 type: 'boolean',
                 caption: 'Show Label',
                 description: 'Display percentage label',
             });
-            requirements.toolboxCategory = 'Display';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Display';
         }
-        // Card/Container patterns
+        // Card/Container patterns - FIXED: Set category FIRST, use widgets type for content
         if (lowerDesc.includes('card') ||
             lowerDesc.includes('panel') ||
             lowerDesc.includes('box') ||
-            lowerDesc.includes('container')) {
-            requirements.properties?.push({
+            lowerDesc.includes('container') ||
+            lowerDesc.includes('drop zone') ||
+            lowerDesc.includes('dropzone')) {
+            addPropertyIfNotExists({
                 key: 'title',
                 type: 'expression',
                 caption: 'Title',
                 description: 'Card/panel title',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'content',
                 type: 'widgets',
                 caption: 'Content',
-                description: 'Widgets to display inside',
+                description: 'Widgets to display inside (drop zone)',
             });
+            // Container category takes priority!
             requirements.toolboxCategory = 'Container';
         }
         // List/Grid patterns
@@ -477,121 +505,128 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('grid') ||
             lowerDesc.includes('table') ||
             lowerDesc.includes('data')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'dataSource',
                 type: 'datasource',
                 caption: 'Data Source',
                 description: 'The data to display',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'itemTemplate',
                 type: 'widgets',
                 caption: 'Item Template',
                 description: 'Widget template for each item',
             });
-            requirements.toolboxCategory = 'Data';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Data';
         }
         // Rating/Stars patterns
         if (lowerDesc.includes('rating') ||
             lowerDesc.includes('star') ||
             lowerDesc.includes('review') ||
             lowerDesc.includes('score')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'ratingAttribute',
                 type: 'attribute',
                 caption: 'Rating Attribute',
                 description: 'Attribute to store the rating value',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'maxRating',
                 type: 'integer',
                 caption: 'Max Rating',
                 description: 'Maximum rating value (default 5)',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'readonly',
                 type: 'boolean',
                 caption: 'Read Only',
                 description: 'If true, rating cannot be changed',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onRate',
                 caption: 'On Rate',
                 description: 'Triggered when rating changes',
             });
-            requirements.toolboxCategory = 'Input';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Input';
         }
         // Modal/Dialog patterns
         if (lowerDesc.includes('modal') ||
             lowerDesc.includes('dialog') ||
             lowerDesc.includes('popup') ||
             lowerDesc.includes('overlay')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'isOpen',
                 type: 'attribute',
                 caption: 'Is Open',
                 description: 'Boolean attribute controlling visibility',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'modalContent',
                 type: 'widgets',
                 caption: 'Modal Content',
                 description: 'Widgets to display in the modal',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onClose',
                 caption: 'On Close',
                 description: 'Triggered when modal is closed',
             });
-            requirements.toolboxCategory = 'Container';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Container';
         }
         // Search/Filter patterns
         if (lowerDesc.includes('search') ||
             lowerDesc.includes('filter') ||
             lowerDesc.includes('find') ||
             lowerDesc.includes('autocomplete')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'searchAttribute',
                 type: 'attribute',
                 caption: 'Search Attribute',
                 description: 'Attribute to store search text',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'placeholder',
                 type: 'expression',
                 caption: 'Placeholder',
                 description: 'Placeholder text when empty',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onSearch',
                 caption: 'On Search',
                 description: 'Triggered when search is submitted',
             });
-            requirements.toolboxCategory = 'Input';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Input';
         }
-        // Upload/File patterns
-        if (lowerDesc.includes('upload') ||
-            lowerDesc.includes('file') ||
-            lowerDesc.includes('attachment') ||
-            lowerDesc.includes('drag')) {
-            requirements.properties?.push({
+        // Upload/File patterns - FIXED: Use word boundaries, exclude "drop zone" false positive
+        // Only match when specifically about file uploads, not container drop zones
+        if (/\b(upload|attachment)\b/.test(lowerDesc) ||
+            (/\bfile\b/.test(lowerDesc) &&
+                !lowerDesc.includes('drop zone') &&
+                !lowerDesc.includes('dropzone')) ||
+            (lowerDesc.includes('drag') && lowerDesc.includes('file'))) {
+            addPropertyIfNotExists({
                 key: 'acceptedTypes',
                 type: 'string',
                 caption: 'Accepted File Types',
                 description: 'Comma-separated file extensions (e.g., .pdf,.docx)',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'maxSize',
                 type: 'integer',
                 caption: 'Max File Size (MB)',
                 description: 'Maximum file size in megabytes',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onUpload',
                 caption: 'On Upload',
                 description: 'Triggered when file is uploaded',
             });
-            requirements.toolboxCategory = 'Input';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Input';
         }
         // Chart/Visualization patterns
         if (lowerDesc.includes('chart') ||
@@ -599,83 +634,87 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             lowerDesc.includes('pie') ||
             lowerDesc.includes('bar') ||
             lowerDesc.includes('line')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'dataSource',
                 type: 'datasource',
                 caption: 'Data Source',
                 description: 'Data to visualize',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'labelAttribute',
                 type: 'attribute',
                 caption: 'Label Attribute',
                 description: 'Attribute for chart labels',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'valueAttribute',
                 type: 'attribute',
                 caption: 'Value Attribute',
                 description: 'Attribute for chart values',
             });
-            requirements.toolboxCategory = 'Visualization';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Visualization';
         }
         // Tab/Accordion patterns
         if (lowerDesc.includes('tab') ||
             lowerDesc.includes('accordion') ||
             lowerDesc.includes('collapse') ||
             lowerDesc.includes('expand')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'activeTab',
                 type: 'attribute',
                 caption: 'Active Tab',
                 description: 'Index or ID of the active tab',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onTabChange',
                 caption: 'On Tab Change',
                 description: 'Triggered when active tab changes',
             });
-            requirements.toolboxCategory = 'Container';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Container';
         }
         // Timer/Countdown patterns
         if (lowerDesc.includes('timer') ||
             lowerDesc.includes('countdown') ||
             lowerDesc.includes('stopwatch') ||
             lowerDesc.includes('clock')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'targetDateTime',
                 type: 'attribute',
                 caption: 'Target Date/Time',
                 description: 'Date/time to count down to',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'format',
                 type: 'enumeration',
                 caption: 'Display Format',
                 description: 'How to display the time (days/hours/minutes)',
             });
-            requirements.events?.push({
+            addEventIfNotExists({
                 key: 'onComplete',
                 caption: 'On Complete',
                 description: 'Triggered when countdown reaches zero',
             });
-            requirements.toolboxCategory = 'Display';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Display';
         }
         // Icon/Emoji patterns
         if (lowerDesc.includes('icon') || lowerDesc.includes('emoji') || lowerDesc.includes('symbol')) {
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'iconName',
                 type: 'icon',
                 caption: 'Icon',
                 description: 'Icon to display',
             });
-            requirements.properties?.push({
+            addPropertyIfNotExists({
                 key: 'iconSize',
                 type: 'enumeration',
                 caption: 'Icon Size',
                 description: 'Size of the icon (small, medium, large)',
             });
-            requirements.toolboxCategory = 'Display';
+            if (!requirements.toolboxCategory)
+                requirements.toolboxCategory = 'Display';
         }
         // Default toolbox category if not set
         if (!requirements.toolboxCategory) {
@@ -683,7 +722,7 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         }
         // Always add common styling properties
         // CRITICAL: 'class' is RESERVED by Mendix - use 'styleClass' instead!
-        requirements.properties?.push({
+        addPropertyIfNotExists({
             key: 'styleClass',
             type: 'string',
             caption: 'Style Class',

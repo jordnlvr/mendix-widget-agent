@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.4.4
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.5
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -9,11 +9,11 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.4.4 Improvements:
- * - Enforced interview flow: AI MUST ask for company/author, not assume
- * - Auto-detect icon files in workFolder (SVG/PNG)
- * - Drop zones now use proper JSX renderer pattern for container widgets
- * - Updated modelDescription to prevent AI from bypassing interview
+ * v2.4.5 MAJOR FIX:
+ * - Fixed icon generation: Uses PNG files with naming convention (not embedded XML)
+ * - Fixed drop zones: Generates editorConfig.ts with proper DropZone type
+ * - Fixed pattern detection: No more duplicate properties, proper word boundary matching
+ * - Fixed preview: Uses official Mendix .renderer pattern from fieldset-web
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -56,7 +56,7 @@ const generatorBridge_1 = require("./generatorBridge");
 const mendixPathValidator_1 = require("./mendixPathValidator");
 const widgetAgentTools_1 = require("./widgetAgentTools");
 function activate(context) {
-    console.log('[MendixWidgetAgent] v2.4.4 - Interview Enforcement & Drop Zones activating...');
+    console.log('[MendixWidgetAgent] v2.4.5 - Icon & DropZone Fix activating...');
     // Initialize components
     const pathValidator = new mendixPathValidator_1.MendixPathValidator();
     const generatorBridge = new generatorBridge_1.WidgetGeneratorBridge(context);

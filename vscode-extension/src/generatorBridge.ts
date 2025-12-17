@@ -636,7 +636,6 @@ ${enums}
     <name>${config.displayName || config.name}</name>
     <description>${config.description || ''}</description>
     <studioProCategory>${category}</studioProCategory>
-    <icon/>
     <properties>
         <propertyGroup caption="General">
 ${propsXml}
@@ -811,37 +810,42 @@ ${config.events
     let preview: string;
 
     if (hasDropZones) {
-      // Generate preview with proper drop zone support using JSX renderer pattern
+      // Generate preview using OFFICIAL Mendix pattern from fieldset-web
+      // The .renderer property is called as a component wrapper
+      const rendererConsts = widgetProperties
+        .map((p) => `    const ${p.key}Renderer = props.${p.key}.renderer;`)
+        .join('\n');
+
       const dropZoneRenders = widgetProperties
         .map(
           (p) => `
             {/* ${p.caption} drop zone */}
-            {props.${p.key} && typeof props.${p.key} === 'object' && props.${p.key}.renderer && (
-                <div className="widget-${config.name.toLowerCase()}-dropzone" style={{
-                    minHeight: '50px',
-                    padding: '12px',
-                    margin: '8px 0',
-                    border: '2px dashed #e5e7eb',
-                    borderRadius: '4px',
-                    backgroundColor: '#fafafa'
+            <${p.key}Renderer>
+                <div style={{
+                    minHeight: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#9ca3af',
+                    fontSize: '0.8rem'
                 }}>
-                    {(() => {
-                        const Renderer = props.${p.key}.renderer;
-                        return <Renderer><div style={{ textAlign: 'center', color: '#9ca3af' }}>Drop widgets here</div></Renderer>;
-                    })()}
+                    ${p.caption || p.key}
                 </div>
-            )}`
+            </${p.key}Renderer>`
         )
         .join('\n');
 
       preview = `/**
  * ${config.name} Editor Preview
  * Provides drop zones for widget containers in Mendix Studio Pro
+ * Based on official Mendix fieldset-web pattern
  */
 import { ReactElement, createElement } from 'react';
 import { ${config.name}PreviewProps } from '../typings/${config.name}Props';
 
 export function preview(props: ${config.name}PreviewProps): ReactElement {
+${rendererConsts}
+
     return (
         <div className="widget-${config.name.toLowerCase()}-preview" style={{
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -849,20 +853,25 @@ export function preview(props: ${config.name}PreviewProps): ReactElement {
             borderRadius: '8px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
             overflow: 'hidden',
-            minHeight: '100px',
-            border: '1px solid #e5e7eb',
-            padding: '12px'
+            minHeight: '60px',
+            border: '1px solid #e5e7eb'
         }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e', marginBottom: '8px' }}>
+            <div style={{ padding: '10px', borderBottom: '1px solid #e5e7eb', fontSize: '14px', fontWeight: 600, color: '#1a1a2e' }}>
                 ${config.displayName || config.name}
             </div>
+            <div style={{ padding: '12px' }}>
 ${dropZoneRenders}
+            </div>
         </div>
     );
 }
 
 export function getPreviewCss(): string {
-    return require('./ui/${config.name}.css');
+    return \`
+.widget-${config.name.toLowerCase()}-preview {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+    \`;
 }
 `;
     } else {
@@ -893,20 +902,91 @@ export function preview(props: ${config.name}PreviewProps): ReactElement {
   }
 
   /**
-   * Generate editorConfig.js for Structure Mode preview with raw SVG icon
-   * CRITICAL: Uses raw SVG string, NOT base64 PNG!
+   * Generate editorConfig.ts for Structure Mode preview with DropZone support
+   * CRITICAL: This file creates the actual drop zones visible in Studio Pro!
+   * Based on official Mendix fieldset-web widget pattern
    */
   private generateEditorConfig(dir: string, config: WidgetConfig): void {
-    // Default SVG icon - simple widget icon in Mendix blue
-    const defaultSvg =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#264AE5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>';
+    // Check if widget has any 'widgets' type properties (these need drop zones)
+    const widgetProperties = config.properties.filter((p) => p.type === 'widgets');
+    const hasDropZones = widgetProperties.length > 0;
 
-    const editorConfig = `/**
+    let editorConfig: string;
+
+    if (hasDropZones) {
+      // Generate TypeScript editorConfig with DropZone support
+      // This is the pattern from official Mendix widgets!
+      const dropZoneChildren = widgetProperties
+        .map(
+          (p) => `            {
+                type: "RowLayout",
+                backgroundColor: values.${
+                  p.key
+                }.widgetCount > 0 ? undefined : isDarkMode ? undefined : "#F8F8F8",
+                children: [
+                    {
+                        type: "DropZone",
+                        property: values.${p.key},
+                        placeholder: "${p.caption || p.key}: Drop widgets here"
+                    } as DropZoneProps
+                ]
+            } as RowLayoutProps`
+        )
+        .join(',\n');
+
+      editorConfig = `/**
+ * Editor Configuration for ${config.name}
+ * Provides Structure Mode preview with DropZones in Mendix Studio Pro
+ * Based on official Mendix widget patterns (fieldset-web)
+ */
+import { DropZoneProps, RowLayoutProps, StructurePreviewProps, TextProps } from "@mendix/piw-utils-internal/dist";
+import { ${config.name}PreviewProps } from "../typings/${config.name}Props";
+
+export function getProperties(_values: ${config.name}PreviewProps, defaultProperties: any): any {
+    return defaultProperties;
+}
+
+export function getPreview(values: ${
+        config.name
+      }PreviewProps, isDarkMode: boolean): StructurePreviewProps | null {
+    return {
+        type: "Container",
+        borders: true,
+        borderWidth: 1,
+        children: [
+            {
+                type: "Container",
+                backgroundColor: isDarkMode ? "#454545" : undefined,
+                children: [
+                    {
+                        type: "Container",
+                        padding: 10,
+                        children: [
+                            {
+                                type: "Text",
+                                content: "${config.displayName || config.name}",
+                                fontSize: 14,
+                                bold: true
+                            } as TextProps
+                        ]
+                    }
+                ]
+            },
+${dropZoneChildren}
+        ]
+    };
+}
+`;
+      // Write as TypeScript file for proper types
+      fs.writeFileSync(path.join(dir, 'src', `${config.name}.editorConfig.ts`), editorConfig);
+    } else {
+      // Simple JS config for non-container widgets
+      const defaultSvg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#264AE5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>';
+
+      editorConfig = `/**
  * Editor Configuration for ${config.name}
  * Provides Structure Mode preview in Mendix Studio Pro
- * 
- * IMPORTANT: The Image type's 'document' property requires RAW SVG XML strings!
- * Do NOT use base64 PNG - it will show red error arrows.
  */
 
 export function getProperties(_values, defaultProperties) {
@@ -914,7 +994,6 @@ export function getProperties(_values, defaultProperties) {
 }
 
 export function getPreview(_values, isDarkMode) {
-    // Raw SVG icon - NOT base64!
     const iconSvg = '${defaultSvg}';
     
     return {
@@ -949,8 +1028,8 @@ export function getPreview(_values, isDarkMode) {
     };
 }
 `;
-
-    fs.writeFileSync(path.join(dir, 'src', `${config.name}.editorConfig.js`), editorConfig);
+      fs.writeFileSync(path.join(dir, 'src', `${config.name}.editorConfig.js`), editorConfig);
+    }
   }
 
   private generateStyles(dir: string, config: WidgetConfig): void {
