@@ -227,17 +227,41 @@ class CreateWidgetTool {
 
 Tell me what you want to build. Describe your widget in plain English - I'll figure out the technical details.
 
-## Examples:
-- *"A status badge that shows red, yellow, or green based on an enum attribute"*
-- *"A card component with an image, title, description, and click action"*
-- *"A date/time picker with calendar dropdown"*
-- *"A progress bar with customizable colors and animated fill"*
-- *"An info tooltip that shows help text on hover"*
+## 💡 Popular Widget Ideas:
 
-**What would you like to create?**
+### Display Widgets
+- **Status Badge** - Show status with colors (red/yellow/green) based on an enum
+- **Info Card** - Card with image, title, description, and actions
+- **Progress Indicator** - Animated progress bar or circular gauge
+- **Countdown Timer** - Count down to a target date/time
+- **Rating Display** - Show star ratings (read-only or interactive)
+
+### Input Widgets  
+- **Smart Date Picker** - Date/time selection with calendar
+- **Range Slider** - Select a value or range with a slider
+- **File Upload** - Drag-and-drop file uploader with preview
+- **Search Box** - Autocomplete search with suggestions
+- **Toggle Switch** - On/off switch with labels
+
+### Data Widgets
+- **Data Grid** - Sortable, filterable table with actions
+- **Tree View** - Hierarchical data display
+- **Kanban Board** - Drag-and-drop cards in columns
+- **Timeline** - Chronological event display
+
+### Container Widgets
+- **Collapsible Section** - Expandable/collapsible content area
+- **Tab Container** - Organize content in tabs
+- **Modal Dialog** - Pop-up dialog with content
+- **Wizard Steps** - Multi-step form navigation
 
 ---
-💡 *Tip: Be as specific as you want! The more details you give, the less I'll need to ask.*`;
+
+**What would you like to create?** 
+
+*Be specific! Example: "A status badge that shows red for Critical, yellow for Warning, and green for OK based on a Status enum"*
+
+💡 *The more details you give, the smarter I can be!*`;
         return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(response)]);
     }
     async analyzeDescription(description) {
@@ -284,20 +308,31 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         requirements.description = `A custom ${requirements.displayName?.toLowerCase()} widget for Mendix applications. ${description}`;
         // Analyze for common patterns and deduce properties
         const lowerDesc = description.toLowerCase();
-        // Status/Badge patterns
-        if (lowerDesc.includes('status') || lowerDesc.includes('badge')) {
+        // =======================================================================
+        // SMART PATTERN DETECTION - Infer properties, events, and category
+        // =======================================================================
+        // Status/Badge patterns - very common in business apps
+        if (lowerDesc.includes('status') || lowerDesc.includes('badge') || lowerDesc.includes('indicator')) {
             requirements.properties?.push({
                 key: 'statusAttribute',
                 type: 'attribute',
                 caption: 'Status Attribute',
-                description: 'The attribute that determines the status',
+                description: 'The attribute that determines the status display',
+            });
+            requirements.properties?.push({
+                key: 'colorMapping',
+                type: 'object',
+                caption: 'Color Mapping',
+                description: 'Map status values to colors',
             });
             requirements.toolboxCategory = 'Display';
         }
-        // Click/Action patterns
+        // Click/Action patterns - most widgets need some interactivity
         if (lowerDesc.includes('click') ||
             lowerDesc.includes('button') ||
-            lowerDesc.includes('action')) {
+            lowerDesc.includes('action') ||
+            lowerDesc.includes('tap') ||
+            lowerDesc.includes('press')) {
             requirements.events?.push({
                 key: 'onClick',
                 caption: 'On Click',
@@ -307,19 +342,29 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         // Image patterns
         if (lowerDesc.includes('image') ||
             lowerDesc.includes('picture') ||
-            lowerDesc.includes('photo')) {
+            lowerDesc.includes('photo') ||
+            lowerDesc.includes('avatar') ||
+            lowerDesc.includes('thumbnail')) {
             requirements.properties?.push({
                 key: 'imageUrl',
                 type: 'expression',
                 caption: 'Image URL',
                 description: 'URL or path to the image',
             });
+            requirements.properties?.push({
+                key: 'altText',
+                type: 'expression',
+                caption: 'Alt Text',
+                description: 'Alternative text for accessibility',
+            });
         }
         // Text/Content patterns
         if (lowerDesc.includes('text') ||
             lowerDesc.includes('title') ||
             lowerDesc.includes('label') ||
-            lowerDesc.includes('content')) {
+            lowerDesc.includes('content') ||
+            lowerDesc.includes('heading') ||
+            lowerDesc.includes('caption')) {
             requirements.properties?.push({
                 key: 'content',
                 type: 'expression',
@@ -328,18 +373,19 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
             });
         }
         // Color patterns
-        if (lowerDesc.includes('color') || lowerDesc.includes('colour')) {
+        if (lowerDesc.includes('color') || lowerDesc.includes('colour') || lowerDesc.includes('theme')) {
             requirements.properties?.push({
-                key: 'color',
+                key: 'primaryColor',
                 type: 'string',
-                caption: 'Color',
-                description: 'Color value (hex, rgb, or named)',
+                caption: 'Primary Color',
+                description: 'Primary color value (hex, rgb, or CSS variable)',
             });
         }
         // Tooltip patterns
         if (lowerDesc.includes('tooltip') ||
             lowerDesc.includes('hover') ||
-            lowerDesc.includes('help')) {
+            lowerDesc.includes('help') ||
+            lowerDesc.includes('hint')) {
             requirements.properties?.push({
                 key: 'tooltipText',
                 type: 'expression',
@@ -350,25 +396,251 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         // Date/Time patterns
         if (lowerDesc.includes('date') ||
             lowerDesc.includes('time') ||
-            lowerDesc.includes('calendar')) {
+            lowerDesc.includes('calendar') ||
+            lowerDesc.includes('schedule') ||
+            lowerDesc.includes('picker')) {
             requirements.properties?.push({
                 key: 'dateAttribute',
                 type: 'attribute',
                 caption: 'Date Attribute',
-                description: 'Attribute to store the selected date',
+                description: 'Attribute to store the selected date/time',
+            });
+            requirements.events?.push({
+                key: 'onChange',
+                caption: 'On Change',
+                description: 'Triggered when the date/time changes',
             });
             requirements.toolboxCategory = 'Input';
         }
-        // Progress patterns
-        if (lowerDesc.includes('progress') || lowerDesc.includes('percent')) {
+        // Progress/Percentage patterns
+        if (lowerDesc.includes('progress') || lowerDesc.includes('percent') || lowerDesc.includes('gauge') || lowerDesc.includes('meter')) {
             requirements.properties?.push({
                 key: 'value',
                 type: 'expression',
                 caption: 'Value',
                 description: 'Current progress value (0-100)',
             });
+            requirements.properties?.push({
+                key: 'maxValue',
+                type: 'expression',
+                caption: 'Max Value',
+                description: 'Maximum value (default 100)',
+            });
+            requirements.properties?.push({
+                key: 'showLabel',
+                type: 'boolean',
+                caption: 'Show Label',
+                description: 'Display percentage label',
+            });
             requirements.toolboxCategory = 'Display';
         }
+        // Card/Container patterns
+        if (lowerDesc.includes('card') || lowerDesc.includes('panel') || lowerDesc.includes('box') || lowerDesc.includes('container')) {
+            requirements.properties?.push({
+                key: 'title',
+                type: 'expression',
+                caption: 'Title',
+                description: 'Card/panel title',
+            });
+            requirements.properties?.push({
+                key: 'content',
+                type: 'widgets',
+                caption: 'Content',
+                description: 'Widgets to display inside',
+            });
+            requirements.toolboxCategory = 'Container';
+        }
+        // List/Grid patterns
+        if (lowerDesc.includes('list') || lowerDesc.includes('grid') || lowerDesc.includes('table') || lowerDesc.includes('data')) {
+            requirements.properties?.push({
+                key: 'dataSource',
+                type: 'datasource',
+                caption: 'Data Source',
+                description: 'The data to display',
+            });
+            requirements.properties?.push({
+                key: 'itemTemplate',
+                type: 'widgets',
+                caption: 'Item Template',
+                description: 'Widget template for each item',
+            });
+            requirements.toolboxCategory = 'Data';
+        }
+        // Rating/Stars patterns
+        if (lowerDesc.includes('rating') || lowerDesc.includes('star') || lowerDesc.includes('review') || lowerDesc.includes('score')) {
+            requirements.properties?.push({
+                key: 'ratingAttribute',
+                type: 'attribute',
+                caption: 'Rating Attribute',
+                description: 'Attribute to store the rating value',
+            });
+            requirements.properties?.push({
+                key: 'maxRating',
+                type: 'integer',
+                caption: 'Max Rating',
+                description: 'Maximum rating value (default 5)',
+            });
+            requirements.properties?.push({
+                key: 'readonly',
+                type: 'boolean',
+                caption: 'Read Only',
+                description: 'If true, rating cannot be changed',
+            });
+            requirements.events?.push({
+                key: 'onRate',
+                caption: 'On Rate',
+                description: 'Triggered when rating changes',
+            });
+            requirements.toolboxCategory = 'Input';
+        }
+        // Modal/Dialog patterns
+        if (lowerDesc.includes('modal') || lowerDesc.includes('dialog') || lowerDesc.includes('popup') || lowerDesc.includes('overlay')) {
+            requirements.properties?.push({
+                key: 'isOpen',
+                type: 'attribute',
+                caption: 'Is Open',
+                description: 'Boolean attribute controlling visibility',
+            });
+            requirements.properties?.push({
+                key: 'modalContent',
+                type: 'widgets',
+                caption: 'Modal Content',
+                description: 'Widgets to display in the modal',
+            });
+            requirements.events?.push({
+                key: 'onClose',
+                caption: 'On Close',
+                description: 'Triggered when modal is closed',
+            });
+            requirements.toolboxCategory = 'Container';
+        }
+        // Search/Filter patterns
+        if (lowerDesc.includes('search') || lowerDesc.includes('filter') || lowerDesc.includes('find') || lowerDesc.includes('autocomplete')) {
+            requirements.properties?.push({
+                key: 'searchAttribute',
+                type: 'attribute',
+                caption: 'Search Attribute',
+                description: 'Attribute to store search text',
+            });
+            requirements.properties?.push({
+                key: 'placeholder',
+                type: 'expression',
+                caption: 'Placeholder',
+                description: 'Placeholder text when empty',
+            });
+            requirements.events?.push({
+                key: 'onSearch',
+                caption: 'On Search',
+                description: 'Triggered when search is submitted',
+            });
+            requirements.toolboxCategory = 'Input';
+        }
+        // Upload/File patterns
+        if (lowerDesc.includes('upload') || lowerDesc.includes('file') || lowerDesc.includes('attachment') || lowerDesc.includes('drag')) {
+            requirements.properties?.push({
+                key: 'acceptedTypes',
+                type: 'string',
+                caption: 'Accepted File Types',
+                description: 'Comma-separated file extensions (e.g., .pdf,.docx)',
+            });
+            requirements.properties?.push({
+                key: 'maxSize',
+                type: 'integer',
+                caption: 'Max File Size (MB)',
+                description: 'Maximum file size in megabytes',
+            });
+            requirements.events?.push({
+                key: 'onUpload',
+                caption: 'On Upload',
+                description: 'Triggered when file is uploaded',
+            });
+            requirements.toolboxCategory = 'Input';
+        }
+        // Chart/Visualization patterns
+        if (lowerDesc.includes('chart') || lowerDesc.includes('graph') || lowerDesc.includes('pie') || lowerDesc.includes('bar') || lowerDesc.includes('line')) {
+            requirements.properties?.push({
+                key: 'dataSource',
+                type: 'datasource',
+                caption: 'Data Source',
+                description: 'Data to visualize',
+            });
+            requirements.properties?.push({
+                key: 'labelAttribute',
+                type: 'attribute',
+                caption: 'Label Attribute',
+                description: 'Attribute for chart labels',
+            });
+            requirements.properties?.push({
+                key: 'valueAttribute',
+                type: 'attribute',
+                caption: 'Value Attribute',
+                description: 'Attribute for chart values',
+            });
+            requirements.toolboxCategory = 'Visualization';
+        }
+        // Tab/Accordion patterns
+        if (lowerDesc.includes('tab') || lowerDesc.includes('accordion') || lowerDesc.includes('collapse') || lowerDesc.includes('expand')) {
+            requirements.properties?.push({
+                key: 'activeTab',
+                type: 'attribute',
+                caption: 'Active Tab',
+                description: 'Index or ID of the active tab',
+            });
+            requirements.events?.push({
+                key: 'onTabChange',
+                caption: 'On Tab Change',
+                description: 'Triggered when active tab changes',
+            });
+            requirements.toolboxCategory = 'Container';
+        }
+        // Timer/Countdown patterns
+        if (lowerDesc.includes('timer') || lowerDesc.includes('countdown') || lowerDesc.includes('stopwatch') || lowerDesc.includes('clock')) {
+            requirements.properties?.push({
+                key: 'targetDateTime',
+                type: 'attribute',
+                caption: 'Target Date/Time',
+                description: 'Date/time to count down to',
+            });
+            requirements.properties?.push({
+                key: 'format',
+                type: 'enumeration',
+                caption: 'Display Format',
+                description: 'How to display the time (days/hours/minutes)',
+            });
+            requirements.events?.push({
+                key: 'onComplete',
+                caption: 'On Complete',
+                description: 'Triggered when countdown reaches zero',
+            });
+            requirements.toolboxCategory = 'Display';
+        }
+        // Icon/Emoji patterns
+        if (lowerDesc.includes('icon') || lowerDesc.includes('emoji') || lowerDesc.includes('symbol')) {
+            requirements.properties?.push({
+                key: 'iconName',
+                type: 'icon',
+                caption: 'Icon',
+                description: 'Icon to display',
+            });
+            requirements.properties?.push({
+                key: 'iconSize',
+                type: 'enumeration',
+                caption: 'Icon Size',
+                description: 'Size of the icon (small, medium, large)',
+            });
+            requirements.toolboxCategory = 'Display';
+        }
+        // Default toolbox category if not set
+        if (!requirements.toolboxCategory) {
+            requirements.toolboxCategory = 'Display';
+        }
+        // Always add common styling properties
+        requirements.properties?.push({
+            key: 'class',
+            type: 'string',
+            caption: 'CSS Class',
+            description: 'Additional CSS classes to apply',
+        });
         return requirements;
     }
     /**

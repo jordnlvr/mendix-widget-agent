@@ -2,6 +2,33 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.4.1] - 2024-12-17
+
+### 🧠 Enhanced Smart Interview System
+
+Major improvements to the AI interview process - it's now MUCH smarter!
+
+### Added
+
+- **Widget Ideas Gallery** - Shows 20+ widget ideas organized by category when starting
+- **Enhanced Pattern Detection** - Now recognizes 15+ widget patterns:
+  - Status/Badge, Progress/Gauge, Rating/Stars
+  - Card/Panel, Modal/Dialog, Tab/Accordion
+  - List/Grid, Chart/Graph, Upload/File
+  - Timer/Countdown, Search/Filter, Date/Time
+  - Icon/Emoji, Image/Avatar, and more!
+- **Smart Property Inference** - Automatically detects and adds relevant properties
+- **Event Detection** - Infers onClick, onChange, onComplete events from description
+- **New Property Types** - Added `widgets`, `datasource`, `icon` types
+- **Default Styling** - All widgets get CSS class property for customization
+
+### Changed
+
+- **Better Suggestions** - Toolbox category now auto-suggested based on widget type
+- **Richer Descriptions** - More detailed property descriptions for Studio Pro
+
+---
+
 ## [2.4.0] - 2024-12-17
 
 ### 🚀 MARKETPLACE RELEASE - The #1 Mendix Widget Generator!

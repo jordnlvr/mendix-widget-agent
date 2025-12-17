@@ -21,7 +21,10 @@ export interface WidgetProperty {
     | 'object'
     | 'action'
     | 'attribute'
-    | 'enumeration';
+    | 'enumeration'
+    | 'widgets'
+    | 'datasource'
+    | 'icon';
   caption: string;
   description?: string;
   required?: boolean;

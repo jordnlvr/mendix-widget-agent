@@ -2,7 +2,7 @@
   "name": "mendix-widget-agent",
   "displayName": "Mendix Widget Agent - AI-Powered Widget Generator",
   "description": "🚀 The #1 Mendix widget generator! AI-powered with smart interviewing, auto-fix, and self-learning. Works with Claude, GPT-4, Copilot. Create production-ready pluggable widgets in minutes, not hours. Converts React/TSX → Mendix widgets. 10+ templates included.",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "publisher": "BlueMatrix",
   "author": {
     "name": "BlueMatrix",
