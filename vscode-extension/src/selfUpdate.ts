@@ -10,8 +10,8 @@ import * as https from 'https';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-const GITHUB_REPO = 'jordnlvr/mendix-widget-generator';
-const CURRENT_VERSION = '1.1.0'; // Increment this with each release
+const GITHUB_REPO = 'jordnlvr/mendix-widget-agent';
+const CURRENT_VERSION = '2.4.0'; // Increment this with each release
 
 export interface UpdateInfo {
   currentVersion: string;

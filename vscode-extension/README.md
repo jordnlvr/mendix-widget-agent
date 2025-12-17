@@ -1,77 +1,111 @@
-# 🤖 Mendix Widget Agent
+# 🤖 Mendix Widget Agent - AI-Powered Widget Generator
 
-> **AI-powered Mendix Pluggable Widget generator with natural language interface**
+<p align="center">
+  <img src="resources/icon.png" alt="Mendix Widget Agent" width="128">
+</p>
 
-[![VS Code](https://img.shields.io/badge/VS%20Code-Chat%20Participant-007ACC?logo=visualstudiocode)](https://code.visualstudio.com/)
-[![Mendix](https://img.shields.io/badge/Mendix-10.x%20|%2011.x-0CABF7?logo=mendix)](https://mendix.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  <strong>The #1 AI-powered Mendix Pluggable Widget generator for VS Code</strong><br>
+  <em>Create production-ready custom widgets in minutes, not hours</em>
+</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=BlueMatrix.mendix-widget-agent">
+    <img src="https://img.shields.io/visual-studio-marketplace/v/BlueMatrix.mendix-widget-agent?label=VS%20Marketplace&logo=visualstudiocode&color=007ACC" alt="VS Marketplace Version">
+  </a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=BlueMatrix.mendix-widget-agent">
+    <img src="https://img.shields.io/visual-studio-marketplace/i/BlueMatrix.mendix-widget-agent?label=Installs&color=success" alt="Installs">
+  </a>
+  <img src="https://img.shields.io/badge/Mendix-10.x%20%7C%2011.x-0CABF7" alt="Mendix Compatible">
+  <img src="https://img.shields.io/badge/AI-Claude%20%7C%20GPT--4%20%7C%20Copilot-brightgreen" alt="AI Models">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+  </a>
+</p>
+
+---
+
+## 🎯 Why This Extension?
+
+| Other Extensions        | Mendix Widget Agent                           |
+| ----------------------- | --------------------------------------------- |
+| ❌ Just snippets        | ✅ **Full widget generation** with AI         |
+| ❌ Manual configuration | ✅ **Smart interviewing** - answers saved     |
+| ❌ Single AI model      | ✅ **Any AI model** - Claude, GPT-4, Copilot  |
+| ❌ No error handling    | ✅ **Auto-fix loop** - researches & fixes     |
+| ❌ No deployment        | ✅ **Auto-deploy** to your Mendix project     |
+| ❌ Outdated patterns    | ✅ **Self-learning** - gets smarter over time |
 
 **Stop writing boilerplate. Start describing what you need.**
 
-Type `@mendix-widget` in VS Code chat and describe your widget in plain English. The AI handles the rest:
+---
+
+## ⚡ Quick Demo
 
 ```
-@mendix-widget create a status badge that shows red, yellow, or green based on a status enum
+You: Create a custom Mendix widget
+Agent: 🎨 What would you like to build?
+You: A status badge showing red/yellow/green based on an enum
+Agent: 📋 Got it! StatusBadge widget detected...
+       🏢 Company identifier? (e.g., mycompany)
+You: bluematrix
+Agent: ✅ Building... deploying... DONE!
 ```
+
+**Result:** A production-ready widget in your Mendix project's widgets folder. 🎉
+
+---
 
 ## ✨ Features
 
-| Feature                      | Description                                  |
-| ---------------------------- | -------------------------------------------- |
-| 🧠 **Natural Language**      | Describe widgets in plain English            |
-| 🔍 **Smart Path Validation** | Finds .mpr files, knows where widgets go     |
-| 🔬 **Beast Mode Research**   | 6-tier exhaustive search for patterns        |
-| 🔄 **Auto-Fix Loop**         | Analyzes errors and fixes them automatically |
-| 🚀 **Auto-Deploy**           | Deploys directly to your Mendix project      |
-| 📦 **10+ Templates**         | Pre-built patterns for common widgets        |
+### 🧠 Smart Interview System
 
-## 🚀 Quick Start
+The agent asks ALL required questions one-at-a-time:
 
-### 1. Install the Extension
+- **Company** & **Author** - Saved for future widgets
+- **Work folder** & **Mendix project** - Remembered
+- **Toolbox category** - Display, Input, Data, Container, Visualization
+- **Icon** - Use your SVG or get a default
 
-```bash
-# From VS Code Marketplace (coming soon)
-# Or build from source:
-cd vscode-extension
-npm install
-npm run compile
-```
+### 🔄 React → Mendix Conversion
 
-### 2. Open Chat and Type
+Have an existing React component? Convert it:
 
 ```
-@mendix-widget create a rating widget with 5 stars
+#mendix-convert my DateTimePicker component at ./src/components/DateTimePicker.tsx
 ```
 
-### 3. Answer the Questions
+### 🛡️ Error-Proof Generation
 
-The AI will ask smart questions:
+All proven patterns embedded:
 
-- Where should I create this widget?
-- Do you have a Mendix project to deploy to?
-- Should the rating be editable or read-only?
+- ✅ Correct `package.xml` (no moduleType errors!)
+- ✅ Correct `package.json` (widgetName, packagePath, overrides)
+- ✅ Correct `tsconfig.json` (extends pattern)
+- ✅ React 18.2.0 compatibility
+- ✅ Mendix 10.x and 11.x support
 
-### 4. Watch It Build
+### 🔬 Beast Mode Research
 
-The agent:
+Stuck? The agent searches **6 tiers** of sources:
 
-1. Generates widget code
-2. Runs `npm install`
-3. Builds the widget
-4. If errors occur → researches fixes → retries
-5. Deploys to your Mendix project
+1. Official Mendix docs & API references
+2. GitHub (mendix/widgets-resources repository)
+3. npm packages with @mendix/\* dependencies
+4. Community forums & Stack Overflow
+5. Web archives
+6. Video tutorials & Mendix Academy
 
-## 💬 Commands
+### 🔄 Auto-Fix Loop
 
-| Command     | Description                      | Example                              |
-| ----------- | -------------------------------- | ------------------------------------ |
-| `/create`   | Create a widget from description | `/create progress bar with gradient` |
-| `/template` | Use a pre-built template         | `/template status-badge`             |
-| `/deploy`   | Deploy to Mendix project         | `/deploy D:\MendixProjects\MyApp`    |
-| `/fix`      | Analyze and fix build errors     | `/fix` (paste errors)                |
-| `/research` | Beast Mode pattern research      | `/research drag and drop widgets`    |
+Build failed? The agent:
 
-## 📦 Available Templates
+1. Analyzes the error
+2. Researches the fix
+3. Applies the solution
+4. Rebuilds automatically
+
+### 📦 10+ Pre-built Templates
 
 | Template        | Description                     |
 | --------------- | ------------------------------- |
@@ -86,213 +120,118 @@ The agent:
 | `file-upload`   | Drag-and-drop upload            |
 | `tabs`          | Tab navigation                  |
 
-## 🧠 How It Works
+---
 
-### The AI Brain
+## 🚀 Quick Start
 
-When you describe a widget, the AI:
+### 1. Install from Marketplace
 
-1. **Understands** your natural language description
-2. **Infers** properties, events, and types
-3. **Asks** smart clarifying questions
-4. **Generates** a widget configuration
-5. **Executes** the generator engine
-6. **Fixes** any build errors automatically
+Search **"Mendix Widget Agent"** in VS Code Extensions, or:
 
-### Intelligent Path Validation
-
-When you provide a path like `D:\MendixProjects\MyApp`:
-
-```
-✓ Finds the .mpr file
-✓ Navigates to the widgets folder automatically
-✓ Checks for naming conflicts
-✓ Creates the folder if needed
-✓ Provides helpful suggestions if something's wrong
+```bash
+code --install-extension BlueMatrix.mendix-widget-agent
 ```
 
-**Not a monkey** - actually understands Mendix project structure!
+### 2. Open Agent Mode
 
-### Beast Mode Research
+1. Open the **Chat panel** (Ctrl+Shift+I or Cmd+Shift+I)
+2. Click the **sparkle icon ✨** to switch to Agent Mode
+3. Select any AI model (Claude, GPT-4, Copilot)
 
-When you ask about patterns or get stuck, Beast Mode searches **6 tiers**:
+### 3. Create Your First Widget
 
-| Tier | Sources                                      |
-| ---- | -------------------------------------------- |
-| 1    | Official Mendix docs, API references         |
-| 2    | GitHub code (mendix/widgets-resources is 🏆) |
-| 3    | npm packages depending on @mendix/\*         |
-| 4    | Community forums, Stack Overflow             |
-| 5    | Web archives (Wayback Machine)               |
-| 6    | YouTube, Mendix Academy, Mendix World        |
-
-**Beast Mode never gives up.** It searches ALL tiers before saying "I don't know."
-
-### Research → Build → Test → Fix Loop
+Just type:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    BUILD LOOP                            │
-│                                                          │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐           │
-│  │ Generate │ → │  Build   │ → │  Test    │           │
-│  └──────────┘    └──────────┘    └──────────┘           │
-│       ↑                              │                   │
-│       │                              ↓                   │
-│       │                        ┌──────────┐             │
-│       └──────── FIX ←──────── │  Error?  │             │
-│                                └──────────┘             │
-│                                      │                   │
-│                                      ↓ No               │
-│                                ┌──────────┐             │
-│                                │ Deploy!  │             │
-│                                └──────────┘             │
-└─────────────────────────────────────────────────────────┘
+Create a Mendix widget
 ```
 
-The loop:
+The agent handles everything else!
 
-1. Generates widget code
-2. Runs build
-3. If errors → analyzes them with AI
-4. Applies fixes automatically
-5. Retries (up to 3 attempts)
-6. Deploys when successful
+---
+
+## 🔧 Available Tools
+
+Use `#` references to invoke tools directly:
+
+| Tool                | Description                    | Example                             |
+| ------------------- | ------------------------------ | ----------------------------------- |
+| `#mendix-create`    | Create widget from description | `#mendix-create a pie chart widget` |
+| `#mendix-convert`   | Convert React/TSX to widget    | `#mendix-convert ./MyComponent.tsx` |
+| `#mendix-fix`       | Fix build errors               | `#mendix-fix` + paste errors        |
+| `#mendix-research`  | Research patterns              | `#mendix-research drag and drop`    |
+| `#mendix-templates` | List templates                 | `#mendix-templates`                 |
+| `#mendix-deploy`    | Deploy to project              | `#mendix-deploy to D:\MyApp`        |
+| `#mendix-patterns`  | Show learned patterns          | `#mendix-patterns`                  |
+| `#mendix-status`    | Agent status                   | `#mendix-status`                    |
+
+---
 
 ## ⚙️ Configuration
 
-Access via Settings → Extensions → Mendix Widget Agent
+Access via **Settings → Extensions → Mendix Widget Agent**
 
-| Setting                                | Description                   | Default |
-| -------------------------------------- | ----------------------------- | ------- |
-| `mendixWidget.defaultMendixProject`    | Default Mendix project path   | (empty) |
-| `mendixWidget.defaultWorkFolder`       | Default widget output folder  | (empty) |
-| `mendixWidget.autoInstallDependencies` | Run npm install automatically | `true`  |
-| `mendixWidget.autoBuild`               | Build widget after generation | `true`  |
-| `mendixWidget.autoDeploy`              | Deploy to Mendix project      | `false` |
-| `mendixWidget.beastModeEnabled`        | Enable exhaustive research    | `true`  |
+| Setting                                | Description            | Default |
+| -------------------------------------- | ---------------------- | ------- |
+| `mendixWidget.defaultCompany`          | Your company ID        | (empty) |
+| `mendixWidget.defaultAuthor`           | Your name              | (empty) |
+| `mendixWidget.defaultWorkFolder`       | Widget output folder   | (empty) |
+| `mendixWidget.defaultMendixProject`    | Mendix project path    | (empty) |
+| `mendixWidget.autoInstallDependencies` | Run npm install        | `true`  |
+| `mendixWidget.autoBuild`               | Build after generation | `true`  |
+| `mendixWidget.autoDeploy`              | Deploy to project      | `false` |
+| `mendixWidget.beastModeEnabled`        | Exhaustive research    | `true`  |
 
-## 🏗️ Architecture
+**Pro tip:** Set `defaultCompany` and `defaultAuthor` once - never enter them again!
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    @mendix-widget Chat Participant                   │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  User: "Create a pie chart widget for budget data"                  │
-│                                                                      │
-│  ┌────────────────────────────────────────────────────────────────┐ │
-│  │                        AI BRAIN                                 │ │
-│  │                                                                 │ │
-│  │  ┌─────────────────┐  ┌─────────────────┐                      │ │
-│  │  │ Natural Language │  │ Beast Mode      │                      │ │
-│  │  │ Understanding    │  │ Research        │                      │ │
-│  │  └────────┬────────┘  └────────┬────────┘                      │ │
-│  │           │                     │                               │ │
-│  │           ↓                     ↓                               │ │
-│  │  ┌─────────────────────────────────────────┐                   │ │
-│  │  │         Widget Configuration            │                   │ │
-│  │  │  { name, properties, events, ... }      │                   │ │
-│  │  └────────────────────┬────────────────────┘                   │ │
-│  └───────────────────────│─────────────────────────────────────────┘ │
-│                          │                                           │
-│  ┌───────────────────────↓─────────────────────────────────────────┐ │
-│  │                 PATH VALIDATOR                                   │ │
-│  │  ✓ Find .mpr    ✓ widgets folder    ✓ Check conflicts          │ │
-│  └───────────────────────┬─────────────────────────────────────────┘ │
-│                          │                                           │
-│  ┌───────────────────────↓─────────────────────────────────────────┐ │
-│  │              GENERATOR BRIDGE                                    │ │
-│  │  Calls → cli/generator.js (or PowerShell fallback)              │ │
-│  └───────────────────────┬─────────────────────────────────────────┘ │
-│                          │                                           │
-│  ┌───────────────────────↓─────────────────────────────────────────┐ │
-│  │                 BUILD LOOP                                       │ │
-│  │  Generate → Build → Test → (Fix if needed) → Deploy             │ │
-│  └─────────────────────────────────────────────────────────────────┘ │
-│                                                                      │
-│  Result: Widget deployed to Mendix project! 🎉                       │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+---
 
-### Components
+## 🆚 Comparison with Other Extensions
 
-| Component        | File                         | Purpose                            |
-| ---------------- | ---------------------------- | ---------------------------------- |
-| Extension Entry  | `src/extension.ts`           | Registers participant and commands |
-| Chat Participant | `src/chatParticipant.ts`     | Handles all chat interactions      |
-| Path Validator   | `src/mendixPathValidator.ts` | Smart Mendix path validation       |
-| Generator Bridge | `src/generatorBridge.ts`     | Connects to CLI generator          |
-| Beast Mode       | `src/beastModeResearch.ts`   | 6-tier research protocol           |
-| Build Loop       | `src/buildLoop.ts`           | Research → Build → Fix loop        |
+| Feature                 | This Extension            | Others     |
+| ----------------------- | ------------------------- | ---------- |
+| **AI-Powered**          | ✅ Yes                    | ❌ No      |
+| **Any AI Model**        | ✅ Claude, GPT-4, Copilot | ❌ N/A     |
+| **Smart Interviewing**  | ✅ Yes                    | ❌ No      |
+| **React Conversion**    | ✅ Yes                    | ❌ No      |
+| **Auto-Fix Errors**     | ✅ Yes                    | ❌ No      |
+| **Self-Learning**       | ✅ Yes                    | ❌ No      |
+| **Auto-Deploy**         | ✅ Yes                    | ❌ No      |
+| **Beast Mode Research** | ✅ 6-tier search          | ❌ No      |
+| **Templates**           | ✅ 10+                    | ⚠️ Limited |
+| **Mendix 11.x**         | ✅ Yes                    | ⚠️ Maybe   |
 
-## 📁 Project Structure
+---
 
-```
-vscode-extension/
-├── src/
-│   ├── extension.ts          # Entry point
-│   ├── chatParticipant.ts    # Chat handler
-│   ├── mendixPathValidator.ts # Path validation
-│   ├── generatorBridge.ts    # Generator connection
-│   ├── beastModeResearch.ts  # Research protocol
-│   └── buildLoop.ts          # Build/fix loop
-├── resources/
-│   └── icon.png              # Extension icon
-├── package.json              # Extension manifest
-├── tsconfig.json             # TypeScript config
-└── README.md                 # This file
-```
+## 📋 Requirements
 
-## 🛠️ Development
+- **VS Code** 1.95.0 or higher
+- **Node.js** 18+ (for building widgets)
+- **Mendix Studio Pro** 10.x or 11.x
+- **An AI model** in VS Code (Copilot, Claude, GPT-4, etc.)
 
-### Prerequisites
+---
 
-- Node.js 18+
-- VS Code 1.95+
-- Mendix 10.x or 11.x (for testing)
+## 🔄 Auto-Update
 
-### Building
+This extension auto-updates through the VS Code Marketplace. You'll always have the latest features and fixes!
 
-```bash
-cd vscode-extension
-npm install
-npm run compile
-```
+---
 
-### Testing
+## 📞 Support
 
-1. Open the `vscode-extension` folder in VS Code
-2. Press F5 to launch Extension Development Host
-3. In the new window, open chat and type `@mendix-widget`
+- **Issues:** [GitHub Issues](https://github.com/jordnlvr/mendix-widget-agent/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/jordnlvr/mendix-widget-agent/discussions)
 
-### Packaging
-
-```bash
-npm run package
-# Creates mendix-widget-agent-1.0.0.vsix
-```
-
-## 🚧 Future Improvements
-
-- [ ] **Widget Preview** - Live preview in VS Code
-- [ ] **Visual Editor** - Drag-and-drop widget builder
-- [ ] **Marketplace Templates** - Download community templates
-- [ ] **Version Management** - Handle widget version upgrades
-- [ ] **Multi-Widget Projects** - Generate related widgets together
-- [ ] **Test Generation** - Auto-generate unit tests
-- [ ] **Documentation Generation** - Auto-generate widget docs
-- [ ] **GitHub Integration** - Push widgets to repository
+---
 
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🤝 Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](../CONTRIBUTING.md) first.
-
 ---
 
-**Made with ❤️ for the Mendix community**
+<p align="center">
+  <strong>Made with ❤️ by BlueMatrix for the Mendix community</strong><br>
+  <em>Stop struggling with widget boilerplate. Let AI do the heavy lifting.</em>
+</p>

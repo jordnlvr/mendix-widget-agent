@@ -71,18 +71,22 @@ class MendixWidgetChatParticipant {
         this.selfUpdate = new selfUpdate_1.SelfUpdate();
     }
     async handleRequest(request, context, stream, token) {
-        const sessionId = this.getSessionId(context);
-        let state = this.conversationStates.get(sessionId) || { stage: 'initial' };
+        // Wrap EVERYTHING in try-catch to see any error
         try {
+            console.log('[MendixWidget] handleRequest called, command:', request.command);
+            const sessionId = this.getSessionId(context);
+            let state = this.conversationStates.get(sessionId) || { stage: 'initial' };
             // Handle commands that DON'T need a model first
             if (request.command) {
                 const noModelCommands = ['help', 'status', 'patterns', 'template'];
                 if (noModelCommands.includes(request.command)) {
+                    console.log('[MendixWidget] Handling no-model command:', request.command);
                     return await this.handleCommand(request, context, stream, token, state, sessionId);
                 }
             }
             // For commands/operations that need a model, check availability
             if (!request.model) {
+                console.log('[MendixWidget] No model available');
                 stream.markdown(`⚠️ **Language model not available**\n\n`);
                 stream.markdown(`This might happen if Copilot is still initializing. Try:\n`);
                 stream.markdown(`1. Wait a few seconds and try again\n`);
@@ -98,7 +102,8 @@ class MendixWidgetChatParticipant {
             return await this.handleNaturalLanguage(request, context, stream, token, state, sessionId);
         }
         catch (error) {
-            stream.markdown(`\\n\\n❌ **Error:** ${error instanceof Error ? error.message : 'Unknown error'}\\n`);
+            console.error('[MendixWidget] Error:', error);
+            stream.markdown(`\n\n❌ **Error:** ${error instanceof Error ? error.message : String(error)}\n`);
             return { errorDetails: { message: String(error) } };
         }
     }

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build outputs (compiled JS is needed for VSIX)
+# out/ - Keep this, needed for packaging
+
+# VSIX packages (don't commit built packages)
+*.vsix
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode-test/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test artifacts
+*_FAILED_*/

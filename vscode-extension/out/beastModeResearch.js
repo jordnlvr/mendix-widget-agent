@@ -115,7 +115,7 @@ class BeastModeResearch {
      * Perform exhaustive research on a topic
      * NOW CHECKS LOCAL KNOWLEDGE FIRST before external research!
      * @param topic - The topic to research
-     * @param model - The language model to use (from request.model)
+     * @param model - The language model to use (optional - local knowledge works without it)
      * @param progressCallback - Optional progress callback
      */
     async research(topic, model, progressCallback) {
@@ -154,6 +154,11 @@ class BeastModeResearch {
         else {
             progressCallback?.(`No cached knowledge found. Proceeding with external research...\n\n`);
         }
+        // If no model provided, use local knowledge only
+        if (!model) {
+            progressCallback?.(`⚠️ No language model available. Using local knowledge only.\n\n`);
+            return this.getFallbackResearch(topic);
+        }
         // Continue with external research using the model from the chat session
         try {
             // Build comprehensive research prompt, including local knowledge context
@@ -187,9 +192,13 @@ class BeastModeResearch {
     /**
      * Analyze build errors and research solutions
      * @param errorText - The error text to analyze
-     * @param model - The language model to use (from request.model)
+     * @param model - The language model to use (optional)
      */
     async analyzeError(errorText, model) {
+        // If no model, return generic advice
+        if (!model) {
+            return this.getGenericErrorAdvice(errorText);
+        }
         try {
             const prompt = `You are a Mendix Pluggable Widget expert. Analyze this build error and provide:
 1. What caused the error

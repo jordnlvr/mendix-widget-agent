@@ -17,18 +17,86 @@
 
 ---
 
-## 🎨 ICON FILES - CRITICAL (Learned the Hard Way!)
+## 🎨 ICON FILES - CRITICAL (Updated December 17, 2025)
+
+There are TWO places icons appear - they use DIFFERENT mechanisms!
+
+### Toolbox Icon (Left Panel)
 
 Icons **MUST** be PNG files with **exact naming** in `src/` folder:
 
-| File                         | Size (pixels) | Purpose                      |
-| ---------------------------- | ------------- | ---------------------------- |
-| `{WidgetName}.icon.png`      | 64×64 ideal   | Toolbox list view            |
-| `{WidgetName}.icon.dark.png` | 64×64 ideal   | Dark mode toolbox            |
-| `{WidgetName}.tile.png`      | 256×192 ideal | Toolbox tile view (optional) |
-| `{WidgetName}.tile.dark.png` | 256×192 ideal | Dark mode tile (optional)    |
+| File                         | Size (pixels) | Purpose                            |
+| ---------------------------- | ------------- | ---------------------------------- |
+| `{WidgetName}.tile.png`      | **64×64**     | **LARGE toolbox icon** (required!) |
+| `{WidgetName}.tile.dark.png` | **64×64**     | Large icon for dark mode           |
+| `{WidgetName}.icon.png`      | 16-24         | Small icon (fallback)              |
+| `{WidgetName}.icon.dark.png` | 16-24         | Small icon dark mode               |
 
-### How it Works (from rollup.config.mjs):
+### Preview Icon (On Page in Structure Mode)
+
+The toolbox icon is **NOT** automatically used for the page preview!
+You must ALSO configure `getPreview()` in `editorConfig.js`.
+
+**⚠️ CRITICAL: Use RAW SVG, NOT base64 PNG!**
+
+The `Image` type's `document` property expects **raw SVG XML strings**, not base64.
+This was discovered from official Mendix widget source code (December 2025).
+
+```javascript
+// src/WidgetName.editorConfig.js
+export function getProperties(_values, defaultProperties) {
+  return defaultProperties;
+}
+
+export function getPreview(_values, isDarkMode) {
+  // RAW SVG string - NOT base64!
+  const iconSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#264AE5" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+
+  return {
+    type: 'RowLayout',
+    columnSize: 'grow',
+    backgroundColor: isDarkMode ? '#3B3B3B' : '#F8F8F8',
+    borders: true,
+    borderRadius: 4,
+    children: [
+      {
+        type: 'Container',
+        padding: 4,
+        children: [{ type: 'Image', document: iconSvg, width: 24, height: 24 }],
+      },
+      {
+        type: 'Container',
+        padding: 8,
+        grow: 1,
+        children: [
+          {
+            type: 'Text',
+            content: 'Widget Name',
+            fontColor: isDarkMode ? '#FFFFFF' : '#333333',
+            bold: true,
+          },
+        ],
+      },
+    ],
+  };
+}
+```
+
+### What DOESN'T Work for Preview Icons
+
+❌ **Base64 PNG** → Shows red error arrows  
+❌ **Emoji characters** → Shows garbled text  
+❌ **PNG file path** → Not supported  
+❌ **Same PNG as toolbox** → Preview only accepts SVG
+
+### Recommended Workflow
+
+1. **User provides**: One SVG file (from Lucide, Heroicons, Feather, etc.)
+2. **Convert to PNG**: For toolbox icon (`WidgetName.tile.png` at 64×64)
+3. **Use raw SVG**: Embed directly in `getPreview()` for Structure Mode
+
+### How Rollup Handles Icons (from rollup.config.mjs):
 
 ```javascript
 // Build checks for icon files and copies them to MPK root

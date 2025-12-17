@@ -56,14 +56,14 @@ export class BuildLoop {
    *
    * @param config - Widget configuration
    * @param options - Build loop options
-   * @param model - The language model to use (from request.model)
+   * @param model - The language model to use (optional - some operations work without it)
    * @param progressCallback - Progress callback
    * @param token - Cancellation token
    */
   async execute(
     config: WidgetConfig,
     options: BuildLoopOptions,
-    model: vscode.LanguageModelChat,
+    model: vscode.LanguageModelChat | undefined,
     progressCallback: (update: string) => void,
     token: vscode.CancellationToken
   ): Promise<BuildLoopResult> {
@@ -166,9 +166,12 @@ export class BuildLoop {
   /**
    * Research fixes for given errors
    * @param errors - Array of error messages
-   * @param model - The language model to use (from request.model)
+   * @param model - The language model to use (optional)
    */
-  async researchFixes(errors: string[], model: vscode.LanguageModelChat): Promise<string> {
+  async researchFixes(
+    errors: string[],
+    model: vscode.LanguageModelChat | undefined
+  ): Promise<string> {
     const errorText = errors.join('\n');
     return await this.research.analyzeError(errorText, model);
   }
@@ -184,13 +187,13 @@ export class BuildLoop {
    *
    * Successful fixes get LEARNED back into the nucleus!
    *
-   * @param model - The language model to use (from request.model)
+   * @param model - The language model to use (optional)
    */
   private async analyzeAndFix(
     errors: string[],
     config: WidgetConfig,
     widgetPath: string,
-    model: vscode.LanguageModelChat,
+    model: vscode.LanguageModelChat | undefined,
     progressCallback: (update: string) => void
   ): Promise<{ applied: boolean; description: string }> {
     const errorText = errors.join('\n');
@@ -277,7 +280,12 @@ export class BuildLoop {
       return patternFix;
     }
 
-    // 3. AI-powered fix research (using the model from chat session)
+    // 3. AI-powered fix research (using the model from chat session if available)
+    if (!model) {
+      progressCallback(`⚠️ No language model available for AI-powered fixes.\n`);
+      return { applied: false, description: 'No model available for AI analysis' };
+    }
+
     try {
       const prompt = this.buildFixPrompt(errorText, config, widgetPath);
       const messages = [vscode.LanguageModelChatMessage.User(prompt)];

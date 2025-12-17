@@ -44,8 +44,8 @@ const fs = __importStar(require("fs"));
 const https = __importStar(require("https"));
 const path = __importStar(require("path"));
 const vscode = __importStar(require("vscode"));
-const GITHUB_REPO = 'jordnlvr/mendix-widget-generator';
-const CURRENT_VERSION = '1.1.0'; // Increment this with each release
+const GITHUB_REPO = 'jordnlvr/mendix-widget-agent';
+const CURRENT_VERSION = '2.4.0'; // Increment this with each release
 class SelfUpdate {
     /**
      * Check for updates from GitHub

@@ -1,84 +1,243 @@
 {
   "name": "mendix-widget-agent",
-  "displayName": "Mendix Widget Agent",
-  "description": "AI-powered Mendix Pluggable Widget generator with natural language interface - Now with self-learning nucleus!",
-  "version": "1.3.4",
-  "publisher": "jordnlvr",
+  "displayName": "Mendix Widget Agent - AI-Powered Widget Generator",
+  "description": "🚀 The #1 Mendix widget generator! AI-powered with smart interviewing, auto-fix, and self-learning. Works with Claude, GPT-4, Copilot. Create production-ready pluggable widgets in minutes, not hours. Converts React/TSX → Mendix widgets. 10+ templates included.",
+  "version": "2.4.0",
+  "publisher": "BlueMatrix",
+  "author": {
+    "name": "BlueMatrix",
+    "email": "support@bluematrix.dev"
+  },
+  "license": "MIT",
   "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#0CABF7",
+    "theme": "dark"
+  },
+  "badges": [
+    {
+      "url": "https://img.shields.io/badge/Mendix-10.x%20%7C%2011.x-0CABF7?logo=mendix",
+      "href": "https://mendix.com",
+      "description": "Mendix Compatible"
+    },
+    {
+      "url": "https://img.shields.io/badge/AI-Claude%20%7C%20GPT--4%20%7C%20Copilot-green",
+      "href": "https://code.visualstudio.com/docs/copilot/chat",
+      "description": "Works with any AI"
+    }
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jordnlvr/mendix-widget-generator"
+    "url": "https://github.com/jordnlvr/mendix-widget-agent"
   },
+  "bugs": {
+    "url": "https://github.com/jordnlvr/mendix-widget-agent/issues"
+  },
+  "homepage": "https://github.com/jordnlvr/mendix-widget-agent#readme",
   "engines": {
     "vscode": "^1.95.0"
   },
   "categories": [
-    "Chat",
     "Machine Learning",
+    "Programming Languages",
+    "Snippets",
     "Other"
   ],
   "keywords": [
     "mendix",
     "widget",
     "pluggable widget",
+    "custom widget",
     "low-code",
     "ai",
+    "agent",
     "copilot",
-    "chat participant",
-    "self-learning"
+    "claude",
+    "gpt",
+    "react",
+    "typescript",
+    "generator",
+    "scaffolding",
+    "self-learning",
+    "mendix studio pro",
+    "siemens"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
-    "chatParticipants": [
+    "languageModelTools": [
       {
-        "id": "mendix-widget.agent",
-        "fullName": "Mendix Widget Agent",
-        "name": "mendix-widget",
-        "description": "AI-powered Mendix Pluggable Widget generator. Describe what you want to build in natural language.",
-        "isSticky": true,
-        "commands": [
-          {
-            "name": "create",
-            "description": "Create a new Mendix pluggable widget from natural language description"
-          },
-          {
-            "name": "template",
-            "description": "Use a built-in template (status-badge, data-card, progress-bar, etc.)"
-          },
-          {
-            "name": "deploy",
-            "description": "Deploy an existing widget to a Mendix project"
-          },
-          {
-            "name": "fix",
-            "description": "Analyze and fix widget build errors"
-          },
-          {
-            "name": "research",
-            "description": "Research widget patterns using Beast Mode (exhaustive search)"
-          },
-          {
-            "name": "update",
-            "description": "Check for updates and install the latest version from GitHub"
-          },
-          {
-            "name": "status",
-            "description": "Show version, knowledge base status, and check for updates"
-          },
-          {
-            "name": "patterns",
-            "description": "Show the nucleus - learned patterns that improve over time"
-          },
-          {
-            "name": "learn",
-            "description": "Manually teach new patterns to the nucleus"
-          },
-          {
-            "name": "help",
-            "description": "Show all available commands and how to use them"
+        "name": "mendix-widget_create_widget",
+        "displayName": "Create Mendix Widget",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-create",
+        "icon": "$(add)",
+        "userDescription": "Create a Mendix pluggable widget from a natural language description",
+        "modelDescription": "Creates a Mendix pluggable widget with SMART INTERVIEWING. Asks ALL required questions: company, author, work folder, Mendix project, toolbox category, icon. Remembers preferences for future use. Use when user wants to create/build/generate a Mendix widget.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Natural language description of the widget to create. Example: 'A status badge that shows red/yellow/green based on an enum value'"
+            },
+            "answers": {
+              "type": "object",
+              "description": "Answers to interview questions. Fields: widgetName (PascalCase), company (e.g. blueprintmx), author (your name), workFolder (path), mendixProject (path or 'skip'), toolboxCategory (Display/Input/Data/Container/Visualization), iconPath (path or 'default'), confirm (boolean)"
+            }
           }
-        ]
+        }
+      },
+      {
+        "name": "mendix-widget_convert_tsx",
+        "displayName": "Convert TSX to Widget",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-convert",
+        "icon": "$(sync)",
+        "userDescription": "Convert an existing React/TSX component into a Mendix pluggable widget",
+        "modelDescription": "Converts an existing React/TSX component into a Mendix pluggable widget. Analyzes the component's props and events, creates a Mendix wrapper, and builds the widget. Use this when the user wants to convert, wrap, or transform a React component into a Mendix widget.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "tsxPath": {
+              "type": "string",
+              "description": "Path to the TSX/React component file to convert"
+            },
+            "answers": {
+              "type": "object",
+              "description": "Answers to interview questions including widgetName, workFolder, mendixProject, toolboxCategory, iconPath, wrapOriginal, confirm"
+            }
+          }
+        }
+      },
+      {
+        "name": "mendix-widget_fix_errors",
+        "displayName": "Fix Widget Errors",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-fix",
+        "icon": "$(wrench)",
+        "userDescription": "Analyze and fix Mendix widget build errors",
+        "modelDescription": "Analyzes Mendix widget build errors and suggests fixes using learned patterns and research. Use this when the user has TypeScript, React, or Mendix SDK errors in their widget code.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "errorMessage": {
+              "type": "string",
+              "description": "The error message or build output to analyze"
+            },
+            "widgetPath": {
+              "type": "string",
+              "description": "Optional path to the widget folder for context"
+            }
+          },
+          "required": [
+            "errorMessage"
+          ]
+        }
+      },
+      {
+        "name": "mendix-widget_research",
+        "displayName": "Research Widget Patterns",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-research",
+        "icon": "$(search)",
+        "userDescription": "Research Mendix widget patterns using Beast Mode exhaustive search",
+        "modelDescription": "Performs exhaustive 6-tier research on Mendix widget patterns. Use this when the user needs to understand how to implement a specific widget feature, pattern, or solve a complex widget problem. Searches official docs, GitHub, npm, forums, and more.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "description": "The topic to research. Example: 'drag and drop in widgets', 'chart visualization patterns', 'data grid implementation'"
+            }
+          },
+          "required": [
+            "topic"
+          ]
+        }
+      },
+      {
+        "name": "mendix-widget_list_templates",
+        "displayName": "List Widget Templates",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-templates",
+        "icon": "$(file-code)",
+        "userDescription": "List available pre-built Mendix widget templates",
+        "modelDescription": "Lists all available pre-built widget templates with their properties and events. Use this when the user wants to see what templates are available or wants to use a template as a starting point.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "Optional category filter: Display, Input, Data, Container, Visualization"
+            }
+          }
+        }
+      },
+      {
+        "name": "mendix-widget_deploy",
+        "displayName": "Deploy Widget",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-deploy",
+        "icon": "$(rocket)",
+        "userDescription": "Deploy a built widget to a Mendix project",
+        "modelDescription": "Deploys a built Mendix widget (.mpk file) to a Mendix project's widgets folder. Use this when the user wants to deploy, install, or copy a widget to their Mendix project.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "widgetPath": {
+              "type": "string",
+              "description": "Path to the widget folder or .mpk file"
+            },
+            "mendixProjectPath": {
+              "type": "string",
+              "description": "Path to the Mendix project folder (containing .mpr file)"
+            }
+          },
+          "required": [
+            "widgetPath",
+            "mendixProjectPath"
+          ]
+        }
+      },
+      {
+        "name": "mendix-widget_show_patterns",
+        "displayName": "Show Learned Patterns",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-patterns",
+        "icon": "$(lightbulb)",
+        "userDescription": "Show the self-learning nucleus - patterns learned from building widgets",
+        "modelDescription": "Shows learned patterns from the self-learning nucleus including error fixes, best practices, and SDK API patterns. Use this when the user asks about what the tool has learned, wants to see patterns, or asks about the nucleus.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "errors",
+                "practices",
+                "apis",
+                "all"
+              ],
+              "description": "Optional category filter"
+            }
+          }
+        }
+      },
+      {
+        "name": "mendix-widget_status",
+        "displayName": "Widget Agent Status",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "mendix-status",
+        "icon": "$(info)",
+        "userDescription": "Show Mendix Widget Agent version, configuration, and status",
+        "modelDescription": "Shows the status of the Mendix Widget Agent including version, configuration, learned patterns count, and knowledge base status. Use this when the user asks about the tool's status, version, or configuration.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}
+        }
       }
     ],
     "commands": [
@@ -98,6 +257,16 @@
     "configuration": {
       "title": "Mendix Widget Agent",
       "properties": {
+        "mendixWidget.defaultCompany": {
+          "type": "string",
+          "default": "",
+          "description": "Default company identifier for widgets (e.g., blueprintmx, acme)"
+        },
+        "mendixWidget.defaultAuthor": {
+          "type": "string",
+          "default": "",
+          "description": "Default author name for widgets"
+        },
         "mendixWidget.defaultMendixProject": {
           "type": "string",
           "default": "",

@@ -1,9 +1,19 @@
 "use strict";
 /**
- * Mendix Widget Agent - VS Code Extension
+ * Mendix Custom Widget Agent - VS Code Extension v2.2.0
  *
- * AI-powered Mendix Pluggable Widget generator with natural language interface.
- * Uses @mendix-widget chat participant for conversational widget creation.
+ * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
+ *
+ * NOW USES LANGUAGE MODEL TOOLS instead of Chat Participant!
+ * This means it works with ANY model (Claude, GPT, Copilot, etc.)
+ * in Agent Mode. Users don't need @mendix-widget anymore -
+ * just ask to create a Mendix widget and the tools get invoked.
+ *
+ * v2.2.0 Features:
+ * - Smart interview flow for widget creation
+ * - TSX/React component conversion to Mendix widgets
+ * - SVG-first icon approach (toolbox + preview from one file)
+ * - Intelligent property/event deduction
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -42,22 +52,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
-const chatParticipant_1 = require("./chatParticipant");
 const generatorBridge_1 = require("./generatorBridge");
 const mendixPathValidator_1 = require("./mendixPathValidator");
-let chatParticipant;
+const widgetAgentTools_1 = require("./widgetAgentTools");
 function activate(context) {
-    console.log('Mendix Widget Agent is now active!');
+    console.log('[MendixWidgetAgent] v2.2.0 - Smart Interview Edition activating...');
     // Initialize components
     const pathValidator = new mendixPathValidator_1.MendixPathValidator();
     const generatorBridge = new generatorBridge_1.WidgetGeneratorBridge(context);
-    // Create the chat participant
-    chatParticipant = new chatParticipant_1.MendixWidgetChatParticipant(context, pathValidator, generatorBridge);
-    // Register the chat participant
-    const participant = vscode.chat.createChatParticipant('mendix-widget.agent', chatParticipant.handleRequest.bind(chatParticipant));
-    participant.iconPath = vscode.Uri.joinPath(context.extensionUri, 'resources', 'icon.png');
-    // Register commands
-    context.subscriptions.push(participant, vscode.commands.registerCommand('mendix-widget.setMendixProject', async () => {
+    // Register all Language Model Tools
+    // These work with ANY model in Agent Mode!
+    (0, widgetAgentTools_1.registerAllTools)(context, pathValidator, generatorBridge);
+    // Register commands (still useful for quick access via Command Palette)
+    context.subscriptions.push(vscode.commands.registerCommand('mendix-widget.setMendixProject', async () => {
         const result = await vscode.window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
@@ -103,23 +110,21 @@ function activate(context) {
             title: 'Available Widget Templates',
         });
         if (selected) {
-            vscode.window.showInformationMessage(`Template "${selected.label}" selected. Use @mendix-widget /template ${selected.template.id} to create.`);
+            vscode.window.showInformationMessage(`Template "${selected.label}" selected. In Agent Mode, ask to create a ${selected.template.displayName.toLowerCase()}.`);
         }
     }));
-    // Show welcome message on first activation
-    const hasShownWelcome = context.globalState.get('mendixWidget.hasShownWelcome');
-    if (!hasShownWelcome) {
+    // Show welcome message on first activation (updated for v2.2)
+    const welcomeVersion = context.globalState.get('mendixWidget.welcomeVersion');
+    if (welcomeVersion !== '2.2.0') {
         vscode.window
-            .showInformationMessage('Mendix Widget Agent activated! Type @mendix-widget in chat to get started.', 'Open Chat')
-            .then((selection) => {
-            if (selection === 'Open Chat') {
-                vscode.commands.executeCommand('workbench.action.chat.open');
-            }
+            .showInformationMessage('🤖 Mendix Custom Widget Agent v2.2 - Smart interviews, TSX conversion, SVG icons! Just describe what you need.', 'Got it!')
+            .then(() => {
+            context.globalState.update('mendixWidget.welcomeVersion', '2.2.0');
         });
-        context.globalState.update('mendixWidget.hasShownWelcome', true);
     }
+    console.log('[MendixWidgetAgent] v2.2.0 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).');
 }
 function deactivate() {
-    console.log('Mendix Widget Agent deactivated');
+    console.log('[MendixWidgetAgent] Deactivated');
 }
 //# sourceMappingURL=extension.js.map

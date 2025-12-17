@@ -74,7 +74,7 @@ class BuildLoop {
      *
      * @param config - Widget configuration
      * @param options - Build loop options
-     * @param model - The language model to use (from request.model)
+     * @param model - The language model to use (optional - some operations work without it)
      * @param progressCallback - Progress callback
      * @param token - Cancellation token
      */
@@ -156,7 +156,7 @@ class BuildLoop {
     /**
      * Research fixes for given errors
      * @param errors - Array of error messages
-     * @param model - The language model to use (from request.model)
+     * @param model - The language model to use (optional)
      */
     async researchFixes(errors, model) {
         const errorText = errors.join('\n');
@@ -173,7 +173,7 @@ class BuildLoop {
      *
      * Successful fixes get LEARNED back into the nucleus!
      *
-     * @param model - The language model to use (from request.model)
+     * @param model - The language model to use (optional)
      */
     async analyzeAndFix(errors, config, widgetPath, model, progressCallback) {
         const errorText = errors.join('\n');
@@ -236,7 +236,11 @@ class BuildLoop {
             this.dynamicPatterns.learnErrorFix(errorText.substring(0, 200), patternFix.description, { type: 'manual', description: patternFix.description }, true);
             return patternFix;
         }
-        // 3. AI-powered fix research (using the model from chat session)
+        // 3. AI-powered fix research (using the model from chat session if available)
+        if (!model) {
+            progressCallback(`⚠️ No language model available for AI-powered fixes.\n`);
+            return { applied: false, description: 'No model available for AI analysis' };
+        }
         try {
             const prompt = this.buildFixPrompt(errorText, config, widgetPath);
             const messages = [vscode.LanguageModelChatMessage.User(prompt)];

@@ -1,7 +1,7 @@
 # Widget Creation Agent - Design Specification
 
-**Version**: 2.0 (Updated with VERIFIED patterns)  
-**Last Updated**: December 15, 2025  
+**Version**: 2.1 (Enhanced with Two-Path Approach + Icon Guidance)  
+**Last Updated**: December 17, 2025  
 **Status**: ✅ All patterns tested and working in Mendix Studio Pro 11.5.0
 
 ## Overview
@@ -11,6 +11,30 @@ An AI-powered agent that guides developers through creating Mendix pluggable wid
 ## Vision Statement
 
 > "Tell me what you want to build, I'll handle the rest."
+
+## 🎯 TWO APPROACHES - User Chooses Their Path
+
+### Approach 1: Full Interview (Start from Scratch)
+
+**Use when:** User has an idea but no code yet
+
+1. Discovery interview - understand what they want
+2. Design proposal - AI suggests widget structure
+3. Clarifying questions - icons, styling, features
+4. Generate complete widget from scratch
+5. Build, test, iterate
+
+### Approach 2: TSX Conversion (Existing Component)
+
+**Use when:** User has working React/TSX component to adapt
+
+1. User provides existing TSX code
+2. AI analyzes props, state, events
+3. Map React patterns to Mendix patterns
+4. Generate XML property definitions
+5. Adapt component, build, deploy
+
+**Agent should ask early:** "Are you starting from scratch, or do you have existing React/TSX code to convert?"
 
 ## ⚠️ CRITICAL: Verified Configuration (Battle-Tested)
 
@@ -105,7 +129,11 @@ Widgets appear in specific Studio Pro toolbox sections based on `<studioProCateg
 
 ### Phase 1: Discovery Interview
 
-**AI asks:**
+**Start with the key path question:**
+
+> "Are you starting from scratch, or do you have existing React/TSX code to convert?"
+
+**If starting from scratch, AI asks:**
 
 1. "What problem are you trying to solve with this widget?"
 2. "Describe the user interaction - what will users see and do?"
@@ -115,6 +143,14 @@ Widgets appear in specific Studio Pro toolbox sections based on `<studioProCateg
    - Static configuration?
 4. "Should users be able to edit data, or is this display-only?"
 5. "What should happen when users interact? (click, change, etc.)"
+6. **🎨 "Do you have a custom icon? (64x64 PNG recommended) I'll use it for both the toolbox and page preview."**
+
+**If converting TSX, AI asks:**
+
+1. "Please share the TSX code you want to convert"
+2. "What does this component do in your current app?"
+3. "What props does the parent component pass to it?"
+4. **🎨 "Do you have a custom icon? (64x64 PNG recommended)"**
 
 **AI interprets into:**
 
@@ -409,5 +445,169 @@ export default function MyWidget(props: MyWidgetContainerProps): ReactNode {
 
 ---
 
+## 🎨 CUSTOM ICONS - CRITICAL FOR POLISH (December 2025 Update)
+
+### Two Icon Systems (COMPLETELY SEPARATE!)
+
+| Location         | When Visible              | Format Required        | How To Set                          |
+| ---------------- | ------------------------- | ---------------------- | ----------------------------------- |
+| **Toolbox Icon** | Studio Pro toolbox panel  | **PNG 64×64**          | `.tile.png` file in `src/`          |
+| **Preview Icon** | On page in Structure Mode | **Raw SVG XML string** | `getPreview()` in `editorConfig.js` |
+
+**⚠️ CRITICAL: These use DIFFERENT formats and CANNOT share a file!**
+
+### Toolbox Icons (PNG Files)
+
+Files needed in `src/` folder:
+
+| File                       | Purpose               | Required                  |
+| -------------------------- | --------------------- | ------------------------- |
+| `WidgetName.tile.png`      | Large toolbox icon    | ✅ Yes (for visible icon) |
+| `WidgetName.tile.dark.png` | Dark mode toolbox     | Recommended               |
+| `WidgetName.icon.png`      | Small icon (fallback) | Optional                  |
+| `WidgetName.icon.dark.png` | Small dark mode       | Optional                  |
+
+### Preview Icons (RAW SVG in getPreview)
+
+**⚠️ The `Image` type's `document` property expects RAW SVG XML strings!**
+
+**What DOESN'T work:**
+
+- ❌ Base64 PNG → Shows red error arrows
+- ❌ Emoji characters → Shows garbled text
+- ❌ PNG file path → Not supported
+
+**What DOES work:**
+
+- ✅ Raw SVG string directly in `document` property
+
+```javascript
+// src/WidgetName.editorConfig.js
+export function getPreview(_values, isDarkMode) {
+  // RAW SVG - NOT base64!
+  const iconSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#264AE5" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+
+  return {
+    type: 'RowLayout',
+    columnSize: 'grow',
+    backgroundColor: isDarkMode ? '#3B3B3B' : '#F8F8F8',
+    borders: true,
+    borderRadius: 4,
+    children: [
+      {
+        type: 'Container',
+        padding: 4,
+        children: [{ type: 'Image', document: iconSvg, width: 24, height: 24 }],
+      },
+      {
+        type: 'Container',
+        padding: 8,
+        grow: 1,
+        children: [
+          {
+            type: 'Text',
+            content: 'Widget Name',
+            fontColor: isDarkMode ? '#FFFFFF' : '#333333',
+            bold: true,
+          },
+        ],
+      },
+    ],
+  };
+}
+```
+
+### Recommended User Workflow
+
+**Ask user during interview:**
+
+> "Do you have a custom icon? Provide a simple SVG (from Lucide, Heroicons, Feather, etc.)
+> I'll convert it to PNG for the toolbox and use the SVG directly for the preview."
+
+**Agent processing:**
+
+1. User provides: `my-icon.svg`
+2. Convert to 64×64 PNG → `WidgetName.tile.png` (for toolbox)
+3. Embed raw SVG string → `editorConfig.js` (for preview)
+
+### SVG to PNG Conversion (Node.js)
+
+```javascript
+const { Resvg } = require('@resvg/resvg-js');
+const fs = require('fs');
+
+const svgContent = fs.readFileSync('icon.svg', 'utf8');
+const resvg = new Resvg(svgContent, { fitTo: { mode: 'width', value: 64 } });
+fs.writeFileSync('WidgetName.tile.png', resvg.render().asPng());
+```
+
+### Common Icon Mistakes
+
+| Mistake                          | Symptom            | Fix                                 |
+| -------------------------------- | ------------------ | ----------------------------------- |
+| Only `.icon.png`, no `.tile.png` | Tiny circular icon | Create 64×64 `.tile.png`            |
+| File name mismatch               | Icon not showing   | Exact match: `SmartWidget.tile.png` |
+| Base64 PNG in preview            | Red arrows on page | Use raw SVG string instead          |
+| Emoji in preview                 | Garbled characters | Use raw SVG string instead          |
+| Only toolbox icon, no preview    | No icon on page    | Add `getPreview()` with raw SVG     |
+
+---
+
+## 📋 TSX Conversion Workflow
+
+When user provides existing TSX/React component:
+
+### Phase 1: Analyze the TSX
+
+**AI examines:**
+
+- Props interface - what inputs does it expect?
+- State management - local state or external?
+- Events - onClick, onChange, etc.
+- Styling - inline, CSS modules, styled-components?
+- Dependencies - what npm packages?
+
+### Phase 2: Map to Mendix Properties
+
+| React Prop Type      | Mendix Property Type               |
+| -------------------- | ---------------------------------- |
+| `string`             | `textTemplate` or `expression`     |
+| `number`             | `integer` or `decimal`             |
+| `boolean`            | `boolean`                          |
+| `() => void`         | `action`                           |
+| `string` (enum-like) | `enumeration`                      |
+| Object with `id`     | `attribute` (needs entity context) |
+| Array of objects     | `datasource`                       |
+
+### Phase 3: Generate Mendix Widget Structure
+
+1. Create `src/WidgetName.tsx` - adapted component
+2. Create `src/WidgetName.xml` - property definitions
+3. Create `src/WidgetName.editorConfig.js` - preview
+4. Ask user for custom icon
+5. Handle dependencies
+
+### Phase 4: Adapt React Patterns
+
+**Common adaptations:**
+
+```tsx
+// React: props.onClick()
+// Mendix: props.onClick?.canExecute && props.onClick.execute()
+
+// React: props.value
+// Mendix: props.value?.value ?? ''
+
+// React: props.onChange(newValue)
+// Mendix: props.value?.setValue(newValue)
+
+// React: className={props.className}
+// Mendix: className={props.class}
+```
+
+---
+
 _Document created: December 15, 2025_
+_Updated: December 17, 2025 - Added icon guidance, TSX conversion workflow_
 _Based on research from mendix/web-widgets repo and official Mendix documentation_

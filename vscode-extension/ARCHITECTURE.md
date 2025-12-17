@@ -1,10 +1,10 @@
 # 🏗️ Architecture
 
-> Technical architecture of the Mendix Widget Agent VS Code extension
+> Technical architecture of the Mendix Widget Agent VS Code extension (v2.0)
 
 ## Overview
 
-The Mendix Widget Agent is a VS Code Chat Participant that enables AI-driven widget creation through natural language. It combines several components to provide an intelligent, self-healing widget generation experience.
+The Mendix Widget Agent is a VS Code extension that provides **Language Model Tools** for AI-driven widget creation through natural language. It works with **any AI model** in VS Code's Agent Mode (Claude, GPT-4, Copilot, etc.).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -12,25 +12,29 @@ The Mendix Widget Agent is a VS Code Chat Participant that enables AI-driven wid
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌────────────────────────────────────────────────────────────────────────┐ │
-│  │                    CHAT PARTICIPANT LAYER                               │ │
+│  │                    LANGUAGE MODEL TOOLS LAYER                           │ │
 │  │                                                                         │ │
-│  │  @mendix-widget                                                         │ │
-│  │  ├── /create   → Natural language widget creation                      │ │
-│  │  ├── /template → Pre-built template selection                          │ │
-│  │  ├── /deploy   → Deploy to Mendix project                              │ │
-│  │  ├── /fix      → Analyze and fix errors                                │ │
-│  │  └── /research → Beast Mode exhaustive research                        │ │
+│  │  Tools available to ANY model in Agent Mode:                            │ │
+│  │  ├── mendix-widget_create_widget   → Natural language widget creation  │ │
+│  │  ├── mendix-widget_fix_errors      → Analyze and fix errors            │ │
+│  │  ├── mendix-widget_research        → Beast Mode exhaustive research    │ │
+│  │  ├── mendix-widget_list_templates  → Show available templates          │ │
+│  │  ├── mendix-widget_deploy          → Deploy to Mendix project          │ │
+│  │  ├── mendix-widget_show_patterns   → Show learned patterns (nucleus)   │ │
+│  │  └── mendix-widget_status          → Agent status and configuration    │ │
+│  │                                                                         │ │
+│  │  User can reference tools with #mendix-create, #mendix-fix, etc.       │ │
 │  │                                                                         │ │
 │  └───────────────────────────────┬─────────────────────────────────────────┘ │
 │                                  │                                           │
 │                                  ↓                                           │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                        AI PROCESSING LAYER                             │  │
+│  │                        TOOL EXECUTION LAYER                            │  │
 │  │                                                                        │  │
 │  │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐    │  │
-│  │  │ Language Model   │  │ Conversation     │  │ Config           │    │  │
-│  │  │ Integration      │  │ State Manager    │  │ Generator        │    │  │
-│  │  │ (GPT-4)          │  │                  │  │                  │    │  │
+│  │  │ Create Widget    │  │ Beast Mode       │  │ Dynamic          │    │  │
+│  │  │ Tool             │  │ Research         │  │ Patterns         │    │  │
+│  │  │                  │  │                  │  │ (Self-Learning)  │    │  │
 │  │  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘    │  │
 │  │           │                     │                     │              │  │
 │  │           └─────────────────────┼─────────────────────┘              │  │
@@ -93,25 +97,50 @@ The Mendix Widget Agent is a VS Code Chat Participant that enables AI-driven wid
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Why Language Model Tools (v2.0)?
+
+In v1.x, the extension used a Chat Participant (`@mendix-widget`). This only worked with GitHub Copilot in "Ask Mode".
+
+**The Problem**: In "Agent Mode" with other models (Claude, GPT-4), the Chat Participant couldn't access a language model, causing "Language model unavailable" errors.
+
+**The Solution**: Language Model Tools work with **any model** in Agent Mode. The AI model invokes tools based on the user's intent, and the tools execute the actual logic.
+
+| Approach                    | Works With   | Activation                       |
+| --------------------------- | ------------ | -------------------------------- |
+| Chat Participant (v1.x)     | Copilot only | `@mendix-widget`                 |
+| Language Model Tools (v2.0) | Any model    | Natural language or `#tool-name` |
+
 ## Components
 
-### 1. Chat Participant Layer (`chatParticipant.ts`)
+### 1. Language Model Tools Layer (`mendixWidgetTools.ts`)
 
-The entry point for all user interactions. Handles:
-
-- **Natural language parsing** - Understands user intent
-- **Command routing** - Routes to appropriate handlers
-- **Conversation state** - Maintains multi-turn context
-- **Response streaming** - Streams responses to user
+Seven tools registered via `vscode.lm.registerTool()`:
 
 ```typescript
-export class MendixWidgetChatParticipant {
-  handleRequest(request, context, stream, token): Promise<ChatResult>;
-  handleCreate(request, stream, token, state, sessionId): Promise<ChatResult>;
-  handleTemplate(request, stream, token): Promise<ChatResult>;
-  handleDeploy(request, stream, token): Promise<ChatResult>;
-  handleFix(request, stream, token, state, sessionId): Promise<ChatResult>;
-  handleResearch(request, stream, token): Promise<ChatResult>;
+export function registerAllTools(context: vscode.ExtensionContext): vscode.Disposable[] {
+  return [
+    vscode.lm.registerTool('mendix-widget_create_widget', new CreateWidgetTool()),
+    vscode.lm.registerTool('mendix-widget_fix_errors', new FixWidgetTool()),
+    vscode.lm.registerTool('mendix-widget_research', new ResearchTool()),
+    vscode.lm.registerTool('mendix-widget_list_templates', new ListTemplatesTool()),
+    vscode.lm.registerTool('mendix-widget_deploy', new DeployTool()),
+    vscode.lm.registerTool('mendix-widget_show_patterns', new ShowPatternsTool()),
+    vscode.lm.registerTool('mendix-widget_status', new StatusTool()),
+  ];
+}
+```
+
+Each tool implements `vscode.LanguageModelTool<T>`:
+
+```typescript
+class CreateWidgetTool implements vscode.LanguageModelTool<CreateWidgetInput> {
+  async invoke(
+    options: vscode.LanguageModelToolInvocationOptions<CreateWidgetInput>,
+    token: vscode.CancellationToken
+  ): Promise<vscode.LanguageModelToolResult> {
+    // Execute widget creation logic
+    return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(result)]);
+  }
 }
 ```
 

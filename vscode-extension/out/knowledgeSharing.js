@@ -53,8 +53,8 @@ class KnowledgeSharing {
     findKnowledgeBase() {
         // Common locations to search
         const possiblePaths = [
-            // Dream Workspace location
-            'D:\\Users\\kelly.seale\\VSCode-Dream-Workspace\\MCP-Tools\\mendix-mcp-server\\knowledge',
+            // Dream Workspace location (CORRECT path)
+            'D:\\Users\\kelly.seale\\VSCode-Dream-Workspace\\mendix-mcp-server\\knowledge',
             // Relative to workspace
             path.join(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '', 'mendix-mcp-server', 'knowledge'),
             // User home
