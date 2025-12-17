@@ -6,7 +6,7 @@ on:
       - "v*" # Triggers on version tags like v2.4.0
 
 permissions:
-  contents: write  # Required for creating GitHub releases
+  contents: write # Required for creating GitHub releases
 
 jobs:
   publish:

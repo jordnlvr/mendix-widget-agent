@@ -2,6 +2,41 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.4.3] - 2024-12-17
+
+### 📦 Critical Packaging & Icon Fixes
+
+Major fixes based on real-world testing that eliminate ES6 module errors and icon display issues.
+
+### Fixed
+
+- **Package.xml Path Error** - Now uses folder path (`bluematrix/widgetname`) instead of file path (`Widget.js`)
+  - This was causing "deployment failed during export" ES6 module errors
+- **packagePath Format** - Changed from `com.bluematrix.widget` to simple `bluematrix` format
+  - Now matches working widget structure and widget ID pattern
+- **Toolbox Icon Too Small** - Now generates PNG files (64x64) instead of SVG
+  - Creates `.icon.png`, `.tile.png`, `.tile.dark.png` for proper toolbox display
+  - Mendix toolbox requires PNG format, not SVG!
+
+### Changed
+
+- **Icon Generation** - Embedded default 64x64 PNG icon (Mendix blue)
+- **Package Structure** - Widget folder now matches ID: `{company}/{widgetname}`
+
+### Technical
+
+- `generatePackageXml()` - Now calculates folder path from company + widget name
+- `generateDefaultIcon()` - Creates PNG files from base64, not SVG files
+- Removed SVG-only icon generation that caused tiny icons
+
+### Learned Patterns (for self-learning system)
+
+- `<file path>` in package.xml MUST be folder path, not .js file
+- Toolbox icons require PNG base64 in `<icon>` tag
+- packagePath must match widget ID structure exactly
+
+---
+
 ## [2.4.2] - 2024-12-17
 
 ### 🔧 Critical Bugfixes - Mendix 11.5 Compatibility

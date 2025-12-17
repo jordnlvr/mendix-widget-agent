@@ -719,7 +719,9 @@ Tell me what you want to build. Describe your widget in plain English - I'll fig
         response += `| Work Folder | ${requirements.workFolder || '❓'} |\n`;
         response += `| Mendix Project | ${requirements.mendixProject || '❓ (optional)'} |\n`;
         response += `| Toolbox Category | ${requirements.toolboxCategory || '❓'} |\n`;
-        response += `| Icon | ${requirements.iconPath === 'default' ? '📦 Default (will generate)' : requirements.iconPath || '❓'} |\n\n`;
+        response += `| Icon | ${requirements.iconPath === 'default'
+            ? '📦 Default (will generate)'
+            : requirements.iconPath || '❓'} |\n\n`;
         if (requirements.properties && requirements.properties.length > 0) {
             response += `**Properties detected:** ${requirements.properties
                 .map((p) => p.caption)

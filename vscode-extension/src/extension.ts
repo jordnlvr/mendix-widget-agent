@@ -1,5 +1,5 @@
 /**
- * Mendix Custom Widget Agent - VS Code Extension v2.4.2
+ * Mendix Custom Widget Agent - VS Code Extension v2.4.3
  *
  * AI-powered Mendix Pluggable Widget generator with SMART INTERVIEWING.
  *
@@ -8,10 +8,10 @@
  * in Agent Mode. Users don't need @mendix-widget anymore -
  * just ask to create a Mendix widget and the tools get invoked.
  *
- * v2.4.2 Fixes:
- * - Mendix 11.5 compatibility (pluggable-widgets-tools 11.3.0)
- * - Reserved 'class' property error fixed
- * - Icon question now properly asked in interview
+ * v2.4.3 Fixes:
+ * - Package.xml now uses correct folder path (not .js file)
+ * - PNG icons for toolbox (not SVG - was causing tiny icons)
+ * - packagePath matches widget ID structure
  */
 
 import * as vscode from 'vscode';
@@ -105,21 +105,21 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Show welcome message on first activation (updated for v2.4.2)
+  // Show welcome message on first activation (updated for v2.4.3)
   const welcomeVersion = context.globalState.get<string>('mendixWidget.welcomeVersion');
-  if (welcomeVersion !== '2.4.2') {
+  if (welcomeVersion !== '2.4.3') {
     vscode.window
       .showInformationMessage(
-        '🤖 Mendix Widget Agent v2.4.2 - Fixed Mendix 11.5 compatibility & reserved property errors!',
+        '🤖 Mendix Widget Agent v2.4.3 - Fixed packaging & toolbox icons!',
         'Got it!'
       )
       .then(() => {
-        context.globalState.update('mendixWidget.welcomeVersion', '2.4.2');
+        context.globalState.update('mendixWidget.welcomeVersion', '2.4.3');
       });
   }
 
   console.log(
-    '[MendixWidgetAgent] v2.4.1 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
+    '[MendixWidgetAgent] v2.4.3 activated! 8 tools registered (create, convert, fix, research, templates, deploy, patterns, status).'
   );
 }
 

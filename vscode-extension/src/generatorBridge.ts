@@ -667,7 +667,9 @@ ${eventsXml}
         config.company || 'Company'
       } ${new Date().getFullYear()}. All rights reserved.`,
       license: 'Apache-2.0',
-      packagePath: `com.${config.company || 'mycompany'}.widget`,
+      // CRITICAL: Use simple packagePath like 'bluematrix' NOT 'com.bluematrix.widget'
+      // This must match the folder structure that package.xml references
+      packagePath: config.company?.toLowerCase() || 'mycompany',
       config: {
         projectPath: config.mendixProjectPath?.replace(/\\/g, '/') || '',
         mendixHost: 'http://localhost:8080',
@@ -898,9 +900,13 @@ export function getPreview(_values, isDarkMode) {
   /**
    * Generate package.xml - CRITICAL for MPK structure
    * DO NOT include moduleType attribute - it's invalid!
+   * CRITICAL: file path must be FOLDER path matching widget ID, not .js file!
    */
   private generatePackageXml(dir: string, config: WidgetConfig): void {
-    // NO moduleType attribute - this causes "moduleType is not declared" error!
+    // The file path must reference the folder where the JS/MJS files are located
+    // This matches the widget ID structure: {company}/{widgetname}
+    const widgetFolderPath = `${(config.company || 'mycompany').toLowerCase()}/${config.name.toLowerCase()}`;
+    
     const packageXml = `<?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://www.mendix.com/package/1.0/">
     <clientModule name="${config.name}" version="1.0.0" xmlns="http://www.mendix.com/clientModule/1.0/">
@@ -908,7 +914,7 @@ export function getPreview(_values, isDarkMode) {
             <widgetFile path="${config.name}.xml" />
         </widgetFiles>
         <files>
-            <file path="${config.name}.js" />
+            <file path="${widgetFolderPath}" />
         </files>
     </clientModule>
 </package>`;
@@ -960,26 +966,29 @@ export function ${config.name}Display(props: ${config.name}DisplayProps): ReactE
   }
 
   /**
-   * Generate default toolbox icon PNG
-   * Creates a simple 64x64 Mendix-blue icon
+   * Generate default toolbox icon PNG files
+   * CRITICAL: Mendix toolbox requires PNG (64x64), NOT SVG!
+   * Creates: .icon.png, .tile.png, .tile.dark.png
    */
   private generateDefaultIcon(dir: string, config: WidgetConfig): void {
-    // Default SVG icon that works well for toolbox
+    // Default 64x64 PNG icon (Mendix blue) - base64 encoded
+    // This is a pre-rendered PNG of a simple widget icon
+    const defaultIconPngBase64 = `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`;
+    
+    // Decode and write PNG files
+    const iconBuffer = Buffer.from(defaultIconPngBase64, 'base64');
+    fs.writeFileSync(path.join(dir, 'src', `${config.name}.icon.png`), iconBuffer);
+    fs.writeFileSync(path.join(dir, 'src', `${config.name}.tile.png`), iconBuffer);
+    fs.writeFileSync(path.join(dir, 'src', `${config.name}.tile.dark.png`), iconBuffer);
+    
+    // Also write SVG for Structure Mode preview (optional)
     const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <rect x="8" y="8" width="48" height="48" rx="8" fill="#264AE5" fill-opacity="0.1" stroke="#264AE5" stroke-width="2"/>
   <rect x="16" y="20" width="32" height="4" rx="2" fill="#264AE5"/>
   <rect x="16" y="30" width="24" height="4" rx="2" fill="#264AE5" fill-opacity="0.6"/>
   <rect x="16" y="40" width="28" height="4" rx="2" fill="#264AE5" fill-opacity="0.4"/>
 </svg>`;
-
-    // Write SVG file (can be converted to PNG by user, or used as-is)
     fs.writeFileSync(path.join(dir, 'src', `${config.name}.icon.svg`), defaultSvg);
-
-    // Also create the tile version (larger for toolbox)
-    fs.writeFileSync(path.join(dir, 'src', `${config.name}.tile.svg`), defaultSvg);
-
-    // Note: For PNG, the user needs to convert or provide their own
-    // The build process will use the PNG if available, SVG otherwise
   }
 
   private getTsType(propType: string): string {
