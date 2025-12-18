@@ -11,7 +11,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 const GITHUB_REPO = 'jordnlvr/mendix-widget-agent';
-const CURRENT_VERSION = '2.4.5'; // Increment this with each release
+const CURRENT_VERSION = '2.4.6'; // Increment this with each release
 
 export interface UpdateInfo {
   currentVersion: string;

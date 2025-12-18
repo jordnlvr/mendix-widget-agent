@@ -2,7 +2,24 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
-## [2.4.5] - 2025-01-20
+## [2.4.6] - 2025-12-17
+
+### 🔄 Republish & Cleanup
+
+Republish of v2.4.5 fixes (marketplace had propagation issues preventing v2.4.4 and v2.4.5 from appearing).
+
+### Added
+
+- **Archived old code** - CLI folder, PowerShell scripts, deprecated TypeScript files moved to archive
+- **Fixed GitHub Actions** - Test workflow now compiles extension instead of referencing archived scripts
+
+### Included from v2.4.5
+
+All icon and drop zone fixes from v2.4.5 are included.
+
+---
+
+## [2.4.5] - 2025-12-17
 
 ### 🔧 Icon & Drop Zone Fixes - Major Overhaul
 
