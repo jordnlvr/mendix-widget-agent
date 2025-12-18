@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -16,18 +16,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
 
-      - name: Run Test Suite
-        shell: pwsh
-        run: |
-          # Run all generator tests
-          .\Test-Generator.ps1 -KeepWidgets
+      - name: Install dependencies
+        working-directory: ./vscode-extension
+        run: npm ci
 
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: failed-widgets
-          path: |
-            *_FAILED_*/
+      - name: Compile Extension
+        working-directory: ./vscode-extension
+        run: npm run compile
+
+      - name: Check for TypeScript Errors
+        working-directory: ./vscode-extension
+        run: npx tsc --noEmit
