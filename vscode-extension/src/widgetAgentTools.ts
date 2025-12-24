@@ -144,6 +144,86 @@ const PROVEN_PATTERNS = {
   },
 };
 
+// ============================================================================
+// REACT → MENDIX CONVERSION RULES (v2.5.0) - LEARNED FROM REAL TESTING
+// ============================================================================
+const CONVERSION_RULES = {
+  // Core principles - ENFORCED on every conversion
+  PRINCIPLES: [
+    'WRAP, don\'t rebuild - import original component, create thin Mendix wrapper',
+    'Bundle lucide-react - tree-shaking keeps it small, icons work',
+    'Define ALL Tailwind classes in widget SCSS - Mendix has NO Tailwind',
+    'Use OneSource design tokens, not hardcoded colors',
+    'Support dark mode via html.dark selector (OneSource pattern)',
+  ],
+
+  // Required tsconfig.json settings for conversion
+  TSCONFIG_OVERRIDES: {
+    noUnusedLocals: false,
+    noUnusedParameters: false,
+    jsx: 'react',
+    jsxFactory: 'createElement',
+    jsxFragmentFactory: 'Fragment',
+  },
+
+  // OneSource design tokens - use instead of hardcoded colors
+  ONESOURCE_TOKENS: {
+    surfaceBackground: '--bg-color-secondary',
+    border: '--border-color-default',
+    text: '--font-color-default',
+    textMuted: '--font-color-detail',
+    brandPrimary: '--brand-primary',
+    brandSecondary: '--brand-secondary',
+    // For alpha/opacity: rgb(var(--color-primary) / 0.3)
+    rgbAlphaPattern: 'rgb(var(--color-primary) / <opacity>)',
+  },
+
+  // SCSS requirements for wrapped components
+  SCSS_REQUIREMENTS: {
+    containerDiv: 'Wrapper MUST have container div for SCSS scoping',
+    tailwindUtilities: 'Define EVERY Tailwind class used (flex, rounded, shadow, etc.)',
+    darkModeSelector: 'html.dark .widget-class (NOT body.dark)',
+    escapeDarkClasses: 'Escape dark: prefixed selectors: .dark\\:bg-slate-800\\/50',
+  },
+
+  // Common Tailwind utilities that MUST be defined in widget SCSS
+  TAILWIND_UTILITIES: [
+    'flex', 'flex-col', 'flex-row', 'items-center', 'justify-center', 'justify-between',
+    'gap-1', 'gap-2', 'gap-3', 'gap-4',
+    'p-1', 'p-2', 'p-3', 'p-4', 'px-2', 'px-3', 'px-4', 'py-1', 'py-2', 'py-3',
+    'rounded', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-full',
+    'shadow', 'shadow-sm', 'shadow-md', 'shadow-lg',
+    'text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl',
+    'font-medium', 'font-semibold', 'font-bold',
+    'w-full', 'h-full', 'w-auto', 'h-auto',
+    'border', 'border-2', 'border-t', 'border-b',
+    'overflow-hidden', 'overflow-auto',
+    'transition', 'transition-all', 'duration-200', 'duration-300',
+    'hover', 'focus', 'active',
+    'opacity-0', 'opacity-50', 'opacity-100',
+    'ring-1', 'ring-2', 'ring-brand-primary/20',
+  ],
+
+  // Wrapper component pattern
+  WRAPPER_PATTERN: `import { createElement, ReactElement } from 'react';
+import { OriginalComponent } from './components/OriginalComponent';
+import './ui/WidgetName.scss';
+
+export function WidgetName(props): ReactElement {
+  const componentProps = { /* map Mendix props to component props */ };
+  
+  // CRITICAL: Wrap in container for SCSS scoping
+  return (
+    <div className="widget-wrapper-class">
+      <OriginalComponent {...componentProps} />
+    </div>
+  );
+}`,
+
+  // Required import fix for original component
+  REQUIRED_IMPORT: "import { createElement } from 'react';",
+};
+
 interface AnalyzedProp {
   name: string;
   type: string;

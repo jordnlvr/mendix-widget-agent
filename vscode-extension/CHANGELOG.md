@@ -2,6 +2,53 @@
 
 All notable changes to the Mendix Widget Agent extension will be documented in this file.
 
+## [2.5.0] - 2024-12-24
+
+### 🎄 React → Mendix Conversion Overhaul
+
+Complete rewrite of the TSX conversion rules based on extensive real-world testing with Tailwind + OneSource themed widgets.
+
+### Added
+
+- **10 Critical Conversion Rules** embedded in `modelDescription` - AI models MUST follow these
+- **OneSource Design Token Support** - Use CSS variables instead of hardcoded colors
+- **Dark Mode Pattern** - `html.dark` selector support for OneSource-themed apps
+- **Tailwind-in-SCSS Pattern** - Define ALL Tailwind utilities in widget SCSS (Mendix has no Tailwind)
+
+### Critical Conversion Rules (Enforced)
+
+1. **WRAP, don't rebuild** - Import original component, create thin Mendix wrapper
+2. **Bundle lucide-react** - Tree-shaking keeps it small, icons must work
+3. **Define ALL Tailwind classes in SCSS** - Mendix has NO Tailwind by default
+4. **Use OneSource tokens** - `--brand-primary`, `--bg-color-secondary`, `--font-color-default`
+5. **Dark mode via `html.dark`** - OneSource pattern, not body.dark
+6. **Container div for SCSS scoping** - Wrapper must have container element
+7. **Add createElement import** - Original component needs `import { createElement } from 'react'`
+8. **tsconfig settings** - `noUnusedLocals: false`, `noUnusedParameters: false`
+9. **RGB for alpha colors** - `rgb(var(--color-primary) / 0.3)` pattern
+10. **Escape dark: prefixed classes** - `.dark\:bg-slate-800\/50` in SCSS
+
+### OneSource Token Reference
+
+| Purpose | Token |
+|---------|-------|
+| Surface BG | `--bg-color-secondary` |
+| Border | `--border-color-default` |
+| Text | `--font-color-default` |
+| Text Muted | `--font-color-detail` |
+| Brand Primary | `--brand-primary` |
+| Brand Secondary | `--brand-secondary` |
+| RGB for alpha | `rgb(var(--color-primary) / 0.3)` |
+
+### Technical Details
+
+- Tested with WrappedUserProfile widget using lucide-react icons
+- Validated dark mode with OneSource v1 theme in Studio Pro 11.5
+- All Tailwind utilities (flex, rounded, shadow, etc.) now defined in widget SCSS
+- Container widgets get proper `.widget-wrapper` scoping
+
+---
+
 ## [2.4.6] - 2025-12-17
 
 ### 🔄 Republish & Cleanup

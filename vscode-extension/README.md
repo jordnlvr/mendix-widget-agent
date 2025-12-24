@@ -75,6 +75,52 @@ Have an existing React component? Convert it:
 #mendix-convert my DateTimePicker component at ./src/components/DateTimePicker.tsx
 ```
 
+#### 🔥 Conversion Rules (v2.5.0)
+
+The agent enforces **10 critical rules** when converting React components:
+
+| Rule | Description |
+|------|-------------|
+| **WRAP, don't rebuild** | Import original component, create thin Mendix wrapper |
+| **Bundle lucide-react** | Tree-shaking keeps it small, icons work out of the box |
+| **Define ALL Tailwind in SCSS** | Mendix has NO Tailwind - every utility class must be defined |
+| **Use OneSource tokens** | `--brand-primary`, `--bg-color-secondary`, not hardcoded colors |
+| **Dark mode via `html.dark`** | OneSource pattern, not `body.dark` |
+| **Container div for scoping** | Wrapper component must have container element for SCSS |
+| **Add createElement import** | Original component needs explicit import |
+| **tsconfig settings** | `noUnusedLocals: false`, `noUnusedParameters: false` |
+| **RGB for alpha colors** | `rgb(var(--color-primary) / 0.3)` pattern |
+| **Escape dark: classes** | `.dark\:bg-slate-800\/50` in SCSS selectors |
+
+#### OneSource Token Quick Reference
+
+```scss
+// Use these instead of hardcoded colors
+background: var(--bg-color-secondary);
+border-color: var(--border-color-default);
+color: var(--font-color-default);
+color: var(--brand-primary);
+
+// For alpha/opacity colors
+background: rgb(var(--color-primary) / 0.3);
+```
+
+#### Wrapper Pattern
+
+```tsx
+import { createElement, ReactElement } from 'react';
+import { OriginalComponent } from './components/OriginalComponent';
+import './ui/WidgetName.scss';
+
+export function WidgetName(props): ReactElement {
+  return (
+    <div className="widget-wrapper-class">
+      <OriginalComponent {...mappedProps} />
+    </div>
+  );
+}
+```
+
 ### 🛡️ Error-Proof Generation
 
 All proven patterns embedded:

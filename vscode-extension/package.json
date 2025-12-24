@@ -2,7 +2,7 @@
   "name": "mendix-widget-agent",
   "displayName": "Mendix Widget Agent - AI-Powered Widget Generator",
   "description": "🚀 The #1 Mendix widget generator! AI-powered with smart interviewing, auto-fix, and self-learning. Works with Claude, GPT-4, Copilot. Create production-ready pluggable widgets in minutes, not hours. Converts React/TSX → Mendix widgets. 10+ templates included.",
-  "version": "2.4.6",
+  "version": "2.5.0",
   "publisher": "BlueMatrix",
   "author": {
     "name": "BlueMatrix",
@@ -97,7 +97,7 @@
         "toolReferenceName": "mendix-convert",
         "icon": "$(sync)",
         "userDescription": "Convert an existing React/TSX component into a Mendix pluggable widget",
-        "modelDescription": "Converts an existing React/TSX component into a Mendix pluggable widget. Analyzes the component's props and events, creates a Mendix wrapper, and builds the widget. Use this when the user wants to convert, wrap, or transform a React component into a Mendix widget.",
+        "modelDescription": "Converts an existing React/TSX component into a Mendix pluggable widget. CRITICAL RULES: (1) WRAP, don't rebuild - import original component, create thin Mendix wrapper. (2) Bundle lucide-react icons - tree-shaking keeps it small. (3) Define ALL Tailwind classes in widget SCSS - Mendix has NO Tailwind. (4) Use OneSource design tokens (--brand-primary, --bg-color-secondary, --font-color-default) not hardcoded colors. (5) Support dark mode via 'html.dark' selector (OneSource pattern). (6) Wrapper component MUST have container div for SCSS scoping. (7) Add 'import { createElement } from react' to original component. (8) tsconfig: noUnusedLocals=false, noUnusedParameters=false. (9) For alpha colors use: rgb(var(--color-primary) / 0.3). (10) Define dark: prefixed classes explicitly in SCSS with escaped selectors.",
         "inputSchema": {
           "type": "object",
           "properties": {
